@@ -1,0 +1,184 @@
+﻿
+@using SecondBrain.Models
+@model UserTask
+@{
+    ViewData["Title"] = "Home Page";
+}
+@{
+    var today = DateTime.Now;
+    int currentDayOfWeek = (int) today.DayOfWeek;
+    int currentDay = today.Day;
+    List<DateTime> days = new List<DateTime>();
+    for(int i = 0; i< 7; i++)
+    {
+        DateTime theAddDay = today.AddDays(i - currentDayOfWeek);
+        days.Add(theAddDay);
+    }
+}
+
+
+<div class="text-center d-flex mb-3">
+    <table class=" h-100" style="margin-top: 4vh; width: 4%;">
+        <tr style=" height: 8vh">
+        </tr>
+        <tr style=" height: 2vh">
+        </tr>
+        @for (int i = 0; i < 23; i++)
+        {
+            if (i == 0)
+            {
+                <tr class="mt-5" style="height: 8vh">
+                    <td class="p-0" style="height: 8vh">
+                        @((i + 1).ToString("D2")):00
+                    </td>
+                </tr>
+            }
+            else
+            {
+                <tr style="height: 8vh">
+                    <td class="p-0">
+                        @((i + 1).ToString("D2")):00
+                    </td>
+                </tr>
+            }
+        }
+    </table>
+
+    <table class="h-100" style="width: 96%;border-collapse: collapse; width: 100%;">
+        @* The header of table *@
+        <tr style=" height: 8vh;position: sticky; top: 10vh; background-color: white; box-shadow: rgba(33, 35, 38, 0.1) 0px 10px 10px -10px;">
+            <th style="width: 1rem;" class="p-0 border-0">
+            </th>
+                @foreach (DateTime date in days)
+                {
+                <th style="width: 14.1%;">
+                    <div>@date.DayOfWeek</div>
+                    <div>@date.Day</div>
+                </th>
+                }
+        </tr>
+        <tr style=" height: 2vh; position: sticky; top: 18vh;">
+            <td style="width: 1rem;" class="p-0 border-1 border-top-0 border-left-0 border-end-0 border-start-0">
+            </td>
+            @for (int i = 0; i < 7; i++)
+            {
+                <td class="border-1 border-top-0 border-end-0"></td>
+            }
+        </tr>
+        @* Blank entity *@
+        @for (int i = 0; i < 24; i++)
+        {
+            if (i == 23)
+            {
+                <tr style="height: 8vh;">
+                    <td style="width: 5px" class="p-0 border-0">
+                    </td>
+                    @for (int j = 0; j < 7; j++)
+                    {
+                        @if (j == 6)
+                        {
+                            <td id=@(i.ToString() + j.ToString()) class="p-0 border-1 border-end-0 border-bottom-0 p-0">
+                                <div class="h-50 f" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()))"></div>
+                                <div class="h-50 s" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()))"></div>
+                            </td>
+                        }
+                        else
+                        {
+                            <td id=@(i.ToString() + j.ToString()) class="p-0 border-1 border-bottom-0 p-0">
+                                <div class="h-50 f" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()))"></div>
+                                <div class="h-50 s" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()))"></div>
+                            </td>
+                        }
+                    }
+                </tr>
+            }
+            else
+            {
+                <tr style="height: 8vh; padding: 0;">
+                    <td style="width: 5px" class="p-0 border-1 border-top-0 border-left-0 border-end-0 border-start-0">
+                    </td>
+                    @for (int j = 0; j < 7; j++)
+                    {
+                        <td id=@(i.ToString() + j.ToString()) class="border-1 border-end-0 p-0">
+                            <div class="h-50 f" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()), 'f')"></div>
+                            <div class="h-50 s" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()), 's')"></div>
+                        </td>
+                    }
+                </tr>
+            }
+        }
+    </table>
+</div>
+
+<!-- Modal -->
+<div class="" id="ModalDT" style="
+      position: fixed;
+      z-index: 1;
+      left: 20px;
+      top: 20vh;
+      width: 38vw;
+      height: 100vh;
+      overflow: auto;
+       display: none">
+    <div class="shadow-lg p-3 rounded bg-white" style="width: 32vw; height: 50vh; margin: 2vw">
+        <div class="">
+            <div class="">
+                <button type="button" class="btn-close mb-3" onclick="document.getElementById('ModalDT').style.display='none';
+                        if (positionOfBlock == 'f') {
+                            document.getElementById(thatId).querySelector('.f').style.backgroundColor='white' ;
+                            document.getElementById(thatId).querySelector('.s').style.backgroundColor='white' ;
+                        } else {
+                            document.getElementById(thatId + 10).querySelector('.f').style.backgroundColor='white';
+                            document.getElementById(thatId).querySelector('.s').style.backgroundColor='white';
+                        }" style="float: right"></button>
+            </div>
+            <form asp-action="AddTask">
+                <div asp-validation-summary="ModelOnly"></div>
+                <div class="form-group">
+                    <input asp-for="Name" class="form-control mt-2 mb-2" placeholder="Add Title" />
+                </div>
+                <div class="form-group d-flex">
+                    <input asp-for="TaskDay" class="form-control mt-2 mb-2" placeholder="" />
+                    <input asp-for="StartTime" class="form-control mt-2 mb-2" placeholder="" />
+                    <input asp-for="EndTime" class="form-control mt-2 mb-2" placeholder="" />
+                </div>
+                <select asp-for="Status" id="cars">
+                    <option value="1">Doing</option>
+                    <option value="2">Done</option>
+                    <option value="3">Failed</option>
+                </select>
+                <input asp-for="Description" class="form-control mt-2 mb-2" placeholder="" />
+                <button type="submit" class="btn btn-primary">Save</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+
+    <script>
+        var thatId = 0;
+        var positionOfBlock = '';
+        function OpenModal(theId, position) {
+            if(theId < 10) theId = "0" + theId
+            
+            var rect = document.getElementById(theId).getBoundingClientRect();
+            if (position == 'f') {
+                document.getElementById(theId).querySelector('.f').style.backgroundColor = "orange";
+                document.getElementById(theId).querySelector('.s').style.backgroundColor = "orange";
+            } else {
+                document.getElementById(theId + 10).querySelector('.f').style.backgroundColor = "orange";
+                document.getElementById(theId).querySelector('.s').style.backgroundColor = "orange";
+            }
+            if (theId % 10 < 3) document.getElementById('ModalDT').style.left = rect.right + "px";
+            else document.getElementById('ModalDT').style.left = (rect.left - document.documentElement.clientWidth / 100 * 36) + "px";
+            console.log(theId);
+            document.getElementById('ModalDT').style.display = 'block'
+            thatId = theId;
+            positionOfBlock = position
+        }
+
+        function SendColor(firstBlock, endBlock) {
+        }
+    </script>
+}

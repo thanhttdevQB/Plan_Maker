@@ -1,0 +1,40 @@
+﻿@using SecondBrain.Models.DTO
+@model Register
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="w-100 d-flex align-items-center justify-content-center" style="height: 80vh">
+    <div class="w-25 shadow-lg p-3 mb-5 bg-white rounded">
+        <h1 class="d-flex align-items-center justify-content-center">Register</h1>
+        <form asp-action="Register" method="post" class="w-100">
+            <div asp-validation-summary="ModelOnly"></div>
+            <div>
+                <label asp-for="Name" class="control-lable"></label>
+                <input asp-for="Name" class="form-control mt-2 mb-2" />
+            </div>
+            <div>
+                <label asp-for="Email" class="control-lable"></label>
+                <input asp-for="Email" class="form-control mt-2 mb-2" />
+            </div>
+            <div>
+                <label asp-for="Password" class="control-lable"></label>
+                <input asp-for="Password" class="form-control mt-2 mb-2" />
+            </div>
+            <div>
+                <label asp-for="ConfirmPassword" class="control-lable"></label>
+                <input asp-for="ConfirmPassword" class="form-control mt-2" />
+            </div>
+            <div class="d-flex align-items-center justify-content-center">
+                <input class="d-flex align-items-center justify-content-center mt-3 p-2 bg-success border-0 text-white rounded" type="submit" value="Register" />
+            </div>
+
+            <p class="d-flex align-items-center justify-content-center">
+                Already have account: 
+                <a class="p-0 px-1 link-primary" asp-area="" asp-controller="Account" asp-action="SignIn">Sign In</a>
+            </p>
+        </form>
+    </div>
+</div>
+

@@ -1,0 +1,56 @@
+﻿@using SecondBrain.Models.DTO
+@model SignIn
+
+@{
+    ViewData["Title"] = "SignIn";
+}
+
+@* <div>
+    <form asp-action="SignIn" method="post">
+        <div asp-validation-summary="ModelOnly"></div>
+        <div>
+            <label asp-for="UserName" class="control-lable"></label>
+            <input asp-for="UserName" class="form-control" />
+            <span asp-validation-for="UserName" class="text-danger"></span>
+        </div>
+        <div>
+            <label asp-for="Password" class="control-lable"></label>
+            <input asp-for="Password" class="form-control" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+        <label class="form-check-label">
+            <input asp-for="RememberMe" class="form-check-input" /> @Html.DisplayNameFor(a => a.RememberMe)
+        </label>
+        <input type="submit" value="Login"/>
+    </form>
+</div> *@
+
+<div class="w-100 d-flex align-items-center justify-content-center" style="height: 80vh">
+    <div class="w-25 shadow-lg p-3 mb-5 bg-white rounded">
+        <h1 class="d-flex align-items-center justify-content-center">Sign In</h1>
+        <form asp-action="SignIn" method="post">
+            <div asp-validation-summary="ModelOnly"></div>
+            <div>
+                <label asp-for="UserName" class="control-lable">User name</label>
+                <input asp-for="UserName" class="form-control mt-2 mb-2" />
+            </div>
+            <div>
+                <label asp-for="Password" class="control-lable"></label>
+                <input asp-for="Password" class="form-control mt-2 mb-2" />
+            </div>
+            <label class="form-check-label">
+                <input asp-for="RememberMe" class="form-check-input " /> @Html.DisplayNameFor(a => a.RememberMe)
+            </label>
+            <br />
+
+            <div class="d-flex align-items-center justify-content-center">
+                <input class="d-flex align-items-center justify-content-center mt-3 px-4 py-2 bg-success border-0 text-white rounded" type="submit" value="Login" />
+            </div>
+
+            <p class="d-flex align-items-center justify-content-center">
+                Doesn't have account:
+                <a class="p-0 px-1" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
+            </p>
+        </form>
+    </div>
+</div>
