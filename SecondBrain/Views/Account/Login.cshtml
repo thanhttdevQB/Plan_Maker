@@ -1,0 +1,32 @@
+﻿@    using SecondBrain.Models.DTO
+@model SignIn
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div>
+    <form asp-action="Login" method="post">
+        <div asp-validation-summary="ModelOnly"></div>
+        <div>
+            <label asp-for="Email" class="control-lable"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+        <div>
+            <label asp-for="Password" class="control-lable"></label>
+            <input asp-for="Password" class="form-control" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+        <label class="form-check-label">
+            <input asp-for="RememberMe" class="form-check-input" /> @Html.DisplayNameFor(a => a.RememberMe)
+        </label>
+        <input type="submit" value="Login"/>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

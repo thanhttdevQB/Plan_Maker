@@ -4,9 +4,9 @@ using SecondBrain.Models;
 
 namespace SecondBrain.Data
 {
-    public class DataContext : IdentityDbContext<AppUser>
+    public class SecondBrainDataContext : IdentityDbContext<AppUser>
     {
-        public DataContext(DbContextOptions options) : base(options)
+        public SecondBrainDataContext(DbContextOptions options) : base(options)
         {
         }
 

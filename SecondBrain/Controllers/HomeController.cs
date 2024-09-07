@@ -10,7 +10,7 @@ namespace SecondBrain.Controllers
     {
         private readonly SignInManager<AppUser> signInManager;
         private readonly ILogger<HomeController> _logger;
-        private readonly DataContext _context;
+        private readonly SecondBrainDataContext _context;
 
         public IActionResult CheckAndReturnLogin()
         {
@@ -21,7 +21,7 @@ namespace SecondBrain.Controllers
             return null;
         }
 
-        public HomeController(ILogger<HomeController> logger, DataContext context)
+        public HomeController(ILogger<HomeController> logger, SecondBrainDataContext context)
         {
             _logger = logger;
             _context = context;

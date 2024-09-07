@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SecondBrain.Data;
 
@@ -10,10 +11,12 @@ using SecondBrain.Data;
 
 namespace SecondBrain.Migrations
 {
-    [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(SecondBrainDataContext))]
+    [Migration("20240907040845_v0")]
+    partial class v0
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -158,18 +161,10 @@ namespace SecondBrain.Migrations
             modelBuilder.Entity("SecondBrain.Models.AppUser", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
-
-                    b.Property<string>("AppUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Avatar")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -221,8 +216,6 @@ namespace SecondBrain.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AppUserId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -289,9 +282,6 @@ namespace SecondBrain.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("AppUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<bool>("IsImage")
                         .HasColumnType("bit");
 
@@ -308,8 +298,6 @@ namespace SecondBrain.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AppUserId");
-
                     b.ToTable("Messages");
                 });
 
@@ -320,9 +308,6 @@ namespace SecondBrain.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AppUserId")
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -337,8 +322,6 @@ namespace SecondBrain.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AppUserId");
-
                     b.ToTable("Posts");
                 });
 
@@ -349,9 +332,6 @@ namespace SecondBrain.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AppUserId")
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int?>("BigTaskId")
                         .HasColumnType("int");
@@ -379,8 +359,6 @@ namespace SecondBrain.Migrations
                         .HasColumnType("date");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AppUserId");
 
                     b.HasIndex("BigTaskId");
 
@@ -438,13 +416,6 @@ namespace SecondBrain.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SecondBrain.Models.AppUser", b =>
-                {
-                    b.HasOne("SecondBrain.Models.AppUser", null)
-                        .WithMany("Friends")
-                        .HasForeignKey("AppUserId");
-                });
-
             modelBuilder.Entity("SecondBrain.Models.Image", b =>
                 {
                     b.HasOne("SecondBrain.Models.Post", null)
@@ -452,40 +423,11 @@ namespace SecondBrain.Migrations
                         .HasForeignKey("PostId");
                 });
 
-            modelBuilder.Entity("SecondBrain.Models.Message", b =>
-                {
-                    b.HasOne("SecondBrain.Models.AppUser", null)
-                        .WithMany("messages")
-                        .HasForeignKey("AppUserId");
-                });
-
-            modelBuilder.Entity("SecondBrain.Models.Post", b =>
-                {
-                    b.HasOne("SecondBrain.Models.AppUser", null)
-                        .WithMany("posts")
-                        .HasForeignKey("AppUserId");
-                });
-
             modelBuilder.Entity("SecondBrain.Models.UserTask", b =>
                 {
-                    b.HasOne("SecondBrain.Models.AppUser", null)
-                        .WithMany("Tasks")
-                        .HasForeignKey("AppUserId");
-
                     b.HasOne("SecondBrain.Models.BigTask", null)
                         .WithMany("Tasks")
                         .HasForeignKey("BigTaskId");
-                });
-
-            modelBuilder.Entity("SecondBrain.Models.AppUser", b =>
-                {
-                    b.Navigation("Friends");
-
-                    b.Navigation("Tasks");
-
-                    b.Navigation("messages");
-
-                    b.Navigation("posts");
                 });
 
             modelBuilder.Entity("SecondBrain.Models.BigTask", b =>

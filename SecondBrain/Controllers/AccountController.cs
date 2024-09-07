@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using SecondBrain.DTOs.DTO;
 using SecondBrain.Models;
-using SecondBrain.Models.DTO;
 
 namespace SecondBrain.Controllers
 {
@@ -59,7 +59,7 @@ namespace SecondBrain.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await signInManager.PasswordSignInAsync(model.UserName, model.Password, model.RememberMe, false);
+                var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
                 if (result.Succeeded)
                 {
                     return Redirect("/");

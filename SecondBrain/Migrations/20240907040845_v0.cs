@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SecondBrain.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class v0 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -49,6 +49,52 @@ namespace SecondBrain.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BigTasks",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Percentage = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BigTasks", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Messages",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Time = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsImage = table.Column<bool>(type: "bit", nullable: false),
+                    IsSender = table.Column<bool>(type: "bit", nullable: false),
+                    MessageContent = table.Column<string>(type: "nvarchar(max)", maxLength: 2147483647, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Messages", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Posts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    isGlobal = table.Column<bool>(type: "bit", nullable: false),
+                    Time = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", maxLength: 2147483647, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Posts", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -157,6 +203,48 @@ namespace SecondBrain.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Tasks",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    StartTime = table.Column<TimeOnly>(type: "time", nullable: false),
+                    TaskDay = table.Column<DateOnly>(type: "date", nullable: false),
+                    EndTime = table.Column<TimeOnly>(type: "time", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", maxLength: 2147483647, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    BigTaskId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tasks", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Tasks_BigTasks_BigTaskId",
+                        column: x => x.BigTaskId,
+                        principalTable: "BigTasks",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Images",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Url = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    PostId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Images", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Images_Posts_PostId",
+                        column: x => x.PostId,
+                        principalTable: "Posts",
+                        principalColumn: "Id");
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -195,6 +283,16 @@ namespace SecondBrain.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Images_PostId",
+                table: "Images",
+                column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tasks_BigTaskId",
+                table: "Tasks",
+                column: "BigTaskId");
         }
 
         /// <inheritdoc />
@@ -216,10 +314,25 @@ namespace SecondBrain.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Images");
+
+            migrationBuilder.DropTable(
+                name: "Messages");
+
+            migrationBuilder.DropTable(
+                name: "Tasks");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Posts");
+
+            migrationBuilder.DropTable(
+                name: "BigTasks");
         }
     }
 }

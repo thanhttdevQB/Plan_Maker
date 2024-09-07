@@ -4,19 +4,8 @@
 @{
     ViewData["Title"] = "Home Page";
 }
-@{
-    var today = DateTime.Now;
-    int currentDayOfWeek = (int) today.DayOfWeek;
-    int currentDay = today.Day;
-    List<DateTime> days = new List<DateTime>();
-    for(int i = 0; i< 7; i++)
-    {
-        DateTime theAddDay = today.AddDays(i - currentDayOfWeek);
-        days.Add(theAddDay);
-    }
-}
 
-
+<Fragment>
 <div class="text-center d-flex mb-3">
     <table class=" h-100" style="margin-top: 4vh; width: 4%;">
         <tr style=" height: 8vh">
@@ -25,37 +14,19 @@
         </tr>
         @for (int i = 0; i < 23; i++)
         {
-            if (i == 0)
-            {
-                <tr class="mt-5" style="height: 8vh">
-                    <td class="p-0" style="height: 8vh">
-                        @((i + 1).ToString("D2")):00
-                    </td>
-                </tr>
-            }
-            else
-            {
-                <tr style="height: 8vh">
+                <tr class="@(i==0 ? "mt-5" : "")" style="height: 8vh">
                     <td class="p-0">
                         @((i + 1).ToString("D2")):00
                     </td>
                 </tr>
-            }
         }
     </table>
 
     <table class="h-100" style="width: 96%;border-collapse: collapse; width: 100%;">
         @* The header of table *@
-        <tr style=" height: 8vh;position: sticky; top: 10vh; background-color: white; box-shadow: rgba(33, 35, 38, 0.1) 0px 10px 10px -10px;">
+        <tr id="dateInWeek" style=" height: 8vh;position: sticky; top: 10vh; background-color: white; box-shadow: rgba(33, 35, 38, 0.1) 0px 10px 10px -10px;">
             <th style="width: 1rem;" class="p-0 border-0">
             </th>
-                @foreach (DateTime date in days)
-                {
-                <th style="width: 14.1%;">
-                    <div>@date.DayOfWeek</div>
-                    <div>@date.Day</div>
-                </th>
-                }
         </tr>
         <tr style=" height: 2vh; position: sticky; top: 18vh;">
             <td style="width: 1rem;" class="p-0 border-1 border-top-0 border-left-0 border-end-0 border-start-0">
@@ -78,15 +49,15 @@
                         @if (j == 6)
                         {
                             <td id=@(i.ToString() + j.ToString()) class="p-0 border-1 border-end-0 border-bottom-0 p-0">
-                                <div class="h-50 f" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()))"></div>
-                                <div class="h-50 s" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()))"></div>
+                                <div class="h-50 f" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()), 'f')"></div>
+                                <div class="h-50 s" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()), 's')"></div>
                             </td>
                         }
                         else
                         {
                             <td id=@(i.ToString() + j.ToString()) class="p-0 border-1 border-bottom-0 p-0">
-                                <div class="h-50 f" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()))"></div>
-                                <div class="h-50 s" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()))"></div>
+                                <div class="h-50 f" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()), 'f')"></div>
+                                <div class="h-50 s" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()), 's')"></div>
                             </td>
                         }
                     }
@@ -124,12 +95,13 @@
         <div class="">
             <div class="">
                 <button type="button" class="btn-close mb-3" onclick="document.getElementById('ModalDT').style.display='none';
+                        
                         if (positionOfBlock == 'f') {
                             document.getElementById(thatId).querySelector('.f').style.backgroundColor='white' ;
                             document.getElementById(thatId).querySelector('.s').style.backgroundColor='white' ;
                         } else {
-                            document.getElementById(thatId + 10).querySelector('.f').style.backgroundColor='white';
                             document.getElementById(thatId).querySelector('.s').style.backgroundColor='white';
+                            document.getElementById(parseInt(thatId) + 10).querySelector('.f').style.backgroundColor='white';
                         }" style="float: right"></button>
             </div>
             <form asp-action="AddTask">
@@ -138,21 +110,25 @@
                     <input asp-for="Name" class="form-control mt-2 mb-2" placeholder="Add Title" />
                 </div>
                 <div class="form-group d-flex">
-                    <input asp-for="TaskDay" class="form-control mt-2 mb-2" placeholder="" />
-                    <input asp-for="StartTime" class="form-control mt-2 mb-2" placeholder="" />
+                    <input asp-for="TaskDay" class="form-control mt-2 mb-2 me-2" placeholder="" />
+                    <input asp-for="StartTime" class="form-control mt-2 mb-2 me-2" placeholder="" />
                     <input asp-for="EndTime" class="form-control mt-2 mb-2" placeholder="" />
                 </div>
+                <label asp-for="Status">Status</label>
                 <select asp-for="Status" id="cars">
                     <option value="1">Doing</option>
                     <option value="2">Done</option>
                     <option value="3">Failed</option>
                 </select>
-                <input asp-for="Description" class="form-control mt-2 mb-2" placeholder="" />
+                    <input asp-for="Description" class="form-control mt-2 mb-2" placeholder="Description" />
+                    <asp:HiddenField id="dayNumber" runat="server" />
                 <button type="submit" class="btn btn-primary">Save</button>
             </form>
         </div>
     </div>
 </div>
+</Fragment>
+
 
 @section scripts {
 
@@ -160,25 +136,71 @@
         var thatId = 0;
         var positionOfBlock = '';
         function OpenModal(theId, position) {
-            if(theId < 10) theId = "0" + theId
             
-            var rect = document.getElementById(theId).getBoundingClientRect();
-            if (position == 'f') {
-                document.getElementById(theId).querySelector('.f').style.backgroundColor = "orange";
-                document.getElementById(theId).querySelector('.s').style.backgroundColor = "orange";
-            } else {
-                document.getElementById(theId + 10).querySelector('.f').style.backgroundColor = "orange";
-                document.getElementById(theId).querySelector('.s').style.backgroundColor = "orange";
+            if (position != 'l' && document.getElementById('ModalDT').style.display != 'block') {
+                if (theId < 10) theId = "0" + theId
+
+                var rect = document.getElementById(theId).getBoundingClientRect();
+                if (position == 'f') {
+                    document.getElementById(theId).querySelector('.f').style.backgroundColor = "orange";
+                    document.getElementById(theId).querySelector('.s').style.backgroundColor = "orange";
+                } else {
+                    document.getElementById(theId).querySelector('.s').style.backgroundColor = "orange";
+                    document.getElementById(parseInt(theId) + 10).querySelector('.f').style.backgroundColor = "orange";
+                }
+                if (theId % 10 < 3) document.getElementById('ModalDT').style.left = rect.right + "px";
+                else document.getElementById('ModalDT').style.left = (rect.left - document.documentElement.clientWidth / 100 * 36) + "px";
+
+                document.getElementById('TaskDay').value = "2011-09-29"
+                document.getElementById('StartTime').value = "21:00"
+                console.log(theId);
+                document.getElementById('ModalDT').style.display = 'block'
+                thatId = theId;
+                positionOfBlock = position
             }
-            if (theId % 10 < 3) document.getElementById('ModalDT').style.left = rect.right + "px";
-            else document.getElementById('ModalDT').style.left = (rect.left - document.documentElement.clientWidth / 100 * 36) + "px";
-            console.log(theId);
-            document.getElementById('ModalDT').style.display = 'block'
-            thatId = theId;
-            positionOfBlock = position
         }
 
-        function SendColor(firstBlock, endBlock) {
+        var current = new Date(2024, 6, 8);
+        var week = new Array()
+        // Starting Monday not Sunday
+        var first = ((current.getDate() - current.getDay()) + 1)
+        const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        for (var i = 0; i < 7; i++) {
+            const d = new Date(current.setDate(first++));
+            document.getElementById('dateInWeek').innerHTML += "<th style='width: 14.1%;' ><div>" + daysOfWeek[d.getDay()] + "</div><div>" + d.getDate() + "</div></th>" 
+        }
+
+        function SendColor(startHour, startMinute, endHour, endMinute, Day) {
+            var theId
+            for (var i = startHour + 10; i < endHour; i += 10) {
+                theId = i;
+                if (i < 10) theId = "0" + theId;
+                document.getElementById(theId).style.backgroundColor = "orange";
+                document.getElementById(theId).addEventListener("click", function () {
+                    openModal(theId, 'l')
+                    document.getElementById(theId).innerHTML = "";
+                })
+            }
+            if (startHour < 10) startHour = "0" + theId;
+            document.getElementById(startHour).innerHTML = ""
+            var startMinH = 100 - (startMinute / 60 * 100);
+            var endMinH = endMinute / 60 * 100;
+            
+            if (startHour < endHour) {
+                if (startHour < 10) startHour = "0" + theId;
+                document.getElementById(startHour).innerHTML =   
+                "<div class='f' style = 'width: 95 %; height:" + (100 - startMinH) + "%' onclick = 'OpenModal(" + startHour + ", 'f')' > </div>" +
+                "<div class='s rounded-top' style = 'width: 95 %; height:" + (startMinH) + "%' onclick = 'OpenModal(" + startHour + ", 'l')' > </div>"
+                document.getElementById(endHour).innerHTML =
+                    "<div class='f rounded-bottom' style = 'width: 95 %; height:" + (endMinH) + "%' onclick = 'OpenModal(" + endHour + ", 'l')' > </div>" +
+                    "<div class='s' style = 'width: 95 %;height:" + (100 - endMinH) + "%' onclick = 'OpenModal(" + endHour + ", 's')' > </div>"
+            } else 
+            {
+                document.getElementById(startHour).innerHTML =
+                    "<div class='f' style = 'width: 95 %; height:" + (100 - startMinH) + "%' onclick = 'OpenModal(" + endHour + ", 'f')' > </div>" +
+                    "<div class='s rounded' style = 'width: 95 %;height:" + (startMinH + endMinH - 100) + "%' onclick = 'OpenModal(" + endHour + ", 'l')' > </div>" +
+                    "<div class='s' style = 'width: 95 %;height:" + (100 - endMinH) + "%' onclick = 'OpenModal(" + endHour + ", 's')' > </div>"
+            }
         }
     </script>
 }

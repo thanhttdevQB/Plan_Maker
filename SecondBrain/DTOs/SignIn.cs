@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SecondBrain.Models.DTO
+namespace SecondBrain.DTOs.DTO
 {
     public class SignIn
     {
         [Required]
-        [StringLength(50)]
-        public string? UserName { get; set; }
+        [DataType(DataType.EmailAddress)]
+        public string? Email { get; set; }
         [Required]
         [StringLength(50)]
         [DataType(DataType.Password)]
