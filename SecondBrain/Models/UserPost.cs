@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SecondBrain.Models
 {
-    public class Post
+    public class UserPost
     {
         [Required]
         public bool isGlobal { get; set; }
@@ -23,6 +23,6 @@ namespace SecondBrain.Models
 
         [Required]
         [StringLength(100)]
-        public List<Image> Images { get; set; }
+        public List<UserImage> Images { get; set; }
     }
 }

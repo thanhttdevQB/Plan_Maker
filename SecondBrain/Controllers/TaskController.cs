@@ -1,14 +1,22 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SecondBrain.Data;
+using SecondBrain.DTOs.Task;
+using SecondBrain.Interfaces;
 using SecondBrain.Models;
 
 namespace SecondBrain.Controllers
 {
     public class TaskController : Controller
     {
-        private readonly SignInManager<AppUser> signInManager;
-        private readonly SecondBrainDataContext _context;
+        private readonly SignInManager<AppUser> _SignInManager;
+        private readonly IUserTask _IUserTask;
+
+        public TaskController(IUserTask IUserTask, SignInManager<AppUser> SignInManager)
+        {
+            _SignInManager = SignInManager;
+            _IUserTask = IUserTask;
+        }
 
         public IActionResult CheckAndReturnLogin()
         {
@@ -25,20 +33,32 @@ namespace SecondBrain.Controllers
             return View();
         }
 
-        public IActionResult AddTask(UserTask model)
+        public IActionResult AddTask(UserTaskCreateDTO NewUserTask)
         {
             CheckAndReturnLogin();
-            if (ModelState.IsValid)
-            {
-                UserTask task = new UserTask()
-                {
-                    StartTime = model.StartTime,
-                    EndTime = model.EndTime,
-                    Name = model.Name,
-                };
-                _context.Tasks.Add(model);
-            }
+            var result = _IUserTask.AddTask(NewUserTask);
             return View("Home/Index");
+        }
+
+        public IActionResult UpdateTask(UserTaskReadUpdateDTO NewUserTask)
+        {
+            CheckAndReturnLogin();
+            var result = _IUserTask.UpdateTask(NewUserTask);
+            return View("Home/Index");
+        }
+
+        public IActionResult DeleteTask(Guid TaskId)
+        {
+            CheckAndReturnLogin();
+            var result = _IUserTask.DeleteTask(TaskId);
+            return View("Home/Index");
+        }
+
+        public IActionResult GetTaskListByUserId(Guid UserId)
+        {
+            CheckAndReturnLogin();
+            var result = _IUserTask.GetAllTaskByUserId(UserId);
+            return Ok(result);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SecondBrain.DTOs.DTO
+namespace SecondBrain.DTOs
 {
     public class Register
     {

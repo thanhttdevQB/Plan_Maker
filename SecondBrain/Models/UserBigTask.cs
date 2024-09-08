@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SecondBrain.Models
 {
-    public class BigTask
+    public class UserBigTask
     {
         [Required]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -26,6 +26,10 @@ namespace SecondBrain.Models
 
         [Required]
         [Range(0, 100)]
-        public int Percentage { get; set; }
+
+        public int PercentageDone { get; set; }
+
+        [Required]
+        public string Description { get; set; }
     }
 }

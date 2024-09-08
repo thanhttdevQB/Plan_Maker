@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using SecondBrain.DTOs.DTO;
+using SecondBrain.DTOs;
 using SecondBrain.Models;
 
 namespace SecondBrain.Controllers
@@ -32,7 +32,7 @@ namespace SecondBrain.Controllers
                     AppUser newUser = new()
                     {
                         Email = model.Email,
-                        UserName = model.Name,
+                        UserName = model.Email,
                         Name = model.Name
                     };
                     var result = await userManager.CreateAsync(newUser, model.Password);

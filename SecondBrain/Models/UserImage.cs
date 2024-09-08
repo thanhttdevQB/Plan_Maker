@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SecondBrain.Models
 {
-    public class Image
+    public class UserImage
     {
         [Required]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -12,6 +12,7 @@ namespace SecondBrain.Models
 
         [Required]
         [StringLength(100)]
+        [DataType(DataType.ImageUrl)]
         public string Url { get; set; }
     }
 }

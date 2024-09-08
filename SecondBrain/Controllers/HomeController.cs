@@ -46,12 +46,12 @@ namespace SecondBrain.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        public async Task<IActionResult> AddTask(UserTask model)
+        public async Task<IActionResult> AddTask(Models.UserTask model)
         {
             CheckAndReturnLogin();
             if (ModelState.IsValid)
             {
-                UserTask task = new UserTask()
+                Models.UserTask task = new Models.UserTask()
                 {
                     StartTime = model.StartTime,
                     TaskDay = model.TaskDay,

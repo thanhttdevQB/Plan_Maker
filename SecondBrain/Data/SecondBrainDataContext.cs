@@ -10,10 +10,12 @@ namespace SecondBrain.Data
         {
         }
 
-        public DbSet<BigTask> BigTasks { get; set; }
-        public DbSet<Image> Images { get; set; }
-        public DbSet<Message> Messages { get; set; }
-        public DbSet<Post> Posts { get; set; }
-        public DbSet<UserTask> Tasks { get; set; }
+        public DbSet<UserProfile> UserProfile { get; set; }
+        public DbSet<UserBigTask> UserBigTask { get; set; }
+        public DbSet<UserImage> UserImage { get; set; }
+        public DbSet<UserMessage> UserMessage { get; set; }
+        public DbSet<UserPost> UserPost { get; set; }
+        public DbSet<UserTask> UserTask { get; set; }
+
     }
 }

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SecondBrain.Models
 {
-    public class Message
+    public class UserMessage
     {
         [Required]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

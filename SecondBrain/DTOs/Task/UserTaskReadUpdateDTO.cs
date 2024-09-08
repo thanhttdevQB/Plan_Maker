@@ -1,10 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SecondBrain.Models;
 using System.ComponentModel.DataAnnotations.Schema;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.ComponentModel.DataAnnotations;
 
-namespace SecondBrain.Models
+namespace SecondBrain.DTOs.Task
 {
-    public class UserTask
+    public class UserTaskReadUpdateDTO
     {
         [Required]
         [Key]
@@ -12,12 +12,12 @@ namespace SecondBrain.Models
         public int Id { get; set; }
 
         [Required]
-        [DataType(DataType.Date)]
-        public DateOnly TaskDay { get; set; }
-
-        [Required]
         [DataType(DataType.Time)]
         public TimeOnly StartTime { get; set; }
+
+        [Required]
+        [DataType(DataType.Date)]
+        public DateOnly TaskDay { get; set; }
 
         [Required]
         [DataType(DataType.Time)]
@@ -32,8 +32,5 @@ namespace SecondBrain.Models
 
         [Required]
         public int Status { get; set; }
-
-        [Required]
-        public UserProfile UserProfile { get; set; }
     }
 }
