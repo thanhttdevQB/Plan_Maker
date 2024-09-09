@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SecondBrain.Data;
+using SecondBrain.Interfaces;
 using SecondBrain.Models;
+using SecondBrain.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +29,8 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(
             .AddSignInManager()
             .AddRoles<IdentityRole>()
             .AddDefaultTokenProviders();
+
+builder.Services.AddScoped<IUserTask, TaskRepository>();
 
 var app = builder.Build();
 

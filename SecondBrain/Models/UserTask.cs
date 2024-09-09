@@ -34,6 +34,6 @@ namespace SecondBrain.Models
         public int Status { get; set; }
 
         [Required]
-        public UserProfile UserProfile { get; set; }
+        public UserProfile? UserProfile { get; set; }
     }
 }

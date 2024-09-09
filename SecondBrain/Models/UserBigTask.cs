@@ -22,7 +22,7 @@ namespace SecondBrain.Models
         [StringLength(50)]
         public string Name { get; set; }
 
-        public List<UserTask> Tasks { get; set; }
+        public List<UserTask>? Tasks { get; } = null;
 
         [Required]
         [Range(0, 100)]

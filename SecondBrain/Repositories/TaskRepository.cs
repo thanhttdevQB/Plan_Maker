@@ -5,6 +5,9 @@ using SecondBrain.Models;
 using SecondBrain.DTOs.Task;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 
 namespace SecondBrain.Repositories
 {
@@ -29,7 +32,7 @@ namespace SecondBrain.Repositories
                     StartTime = TaskCreateDTO.StartTime,
                     Status = TaskCreateDTO.Status,
                     TaskDay = TaskCreateDTO.TaskDay,
-                    UserProfile = _context.UserProfile.Find(TaskCreateDTO.UserId)
+                    UserProfile = _context.UserProfile.Find(TaskCreateDTO.UserId),
                 });
                 _context.SaveChanges();
                 return new ServiceResponses.GeneralResponse(true, "Task added");
@@ -44,11 +47,12 @@ namespace SecondBrain.Repositories
         {
             try
             {
+                
                 UserTask newUserTask = new UserTask
                 {
                     Description = UpdateUserTask.Description,
-                    EndTime= UpdateUserTask.EndTime,
-                    StartTime= UpdateUserTask.StartTime,
+                    EndTime = UpdateUserTask.EndTime,
+                    StartTime = UpdateUserTask.StartTime,
                     Status = UpdateUserTask.Status,
                     TaskDay = UpdateUserTask.TaskDay,
                     Name = UpdateUserTask.Name,

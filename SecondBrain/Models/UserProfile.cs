@@ -14,6 +14,8 @@ namespace SecondBrain.Models
 
         public bool IsSuspend { get; set; } = false;
 
-        public List<UserTask> UserTasks { get; set; }
+        public List<UserTask>? UserTasks { get; } = null;
+
+        public AppUser UserAccount { get; set; }
     }
 }

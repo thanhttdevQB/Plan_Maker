@@ -2,31 +2,22 @@
 using Microsoft.AspNetCore.Mvc;
 using SecondBrain.DTOs;
 using SecondBrain.Models;
+using SecondBrain.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace SecondBrain.Controllers
 {
-    public class AccountController(SignInManager<AppUser> signInManager, UserManager<AppUser> userManager) : Controller
+    public class AccountController(SignInManager<AppUser> signInManager, UserManager<AppUser> userManager, SecondBrainDataContext _context) : Controller
     {
         public IActionResult Index()
         {
             return View();
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> Register1(Register model)
-        //{
-        //    return View();
-        //}
-        //[HttpPost]
-        //public async Task<IActionResult> Register2(Register model)
-        //{
-        //    return View();
-        //}
         public async Task<IActionResult> Register(Register model)
         {
             if (string.Equals(this.Request.Method,"POST", StringComparison.OrdinalIgnoreCase))
             {
-
                 if (ModelState.IsValid)
                 {
                     AppUser newUser = new()
@@ -39,7 +30,12 @@ namespace SecondBrain.Controllers
                     if (result.Succeeded)
                     {
                         await signInManager.SignInAsync(newUser, false);
-
+                        await _context.UserProfile.AddAsync(new UserProfile
+                        {
+                            IsSuspend = false,
+                            UserAccount = _context.Users.Where(x => x.Email == newUser.Email).FirstOrDefault(),
+                        });
+                        _context.SaveChanges();
                         return Redirect("/");
                     }
                     foreach (var error in result.Errors)
@@ -62,6 +58,10 @@ namespace SecondBrain.Controllers
                 var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
                 if (result.Succeeded)
                 {
+                    UserProfile User = _context.UserProfile.Include(x => x.UserAccount).Where(x => x.UserAccount.Email == model.Email).FirstOrDefault();
+                    CookieOptions opt = new CookieOptions();
+                    opt.HttpOnly = true;
+                    Response.Cookies.Append("UserId", User.Id.ToString(), opt);
                     return Redirect("/");
                 }
                 else

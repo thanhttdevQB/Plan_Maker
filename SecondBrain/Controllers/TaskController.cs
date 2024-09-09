@@ -36,8 +36,10 @@ namespace SecondBrain.Controllers
         public IActionResult AddTask(UserTaskCreateDTO NewUserTask)
         {
             CheckAndReturnLogin();
+            string UserId = Request.Cookies.Where(x => x.Key == "UserId").FirstOrDefault().Value;
+            //NewUserTask.UserId = Guid.Parse(UserId);
             var result = _IUserTask.AddTask(NewUserTask);
-            return View("Home/Index");
+            return View("/Account/SignIn");
         }
 
         public IActionResult UpdateTask(UserTaskReadUpdateDTO NewUserTask)

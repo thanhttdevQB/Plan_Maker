@@ -10,6 +10,16 @@ namespace SecondBrain.Data
         {
         }
 
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<UserTask>()
+                .HasOne(x => x.UserProfile)
+                .WithMany(x => x.UserTasks)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+        }
+
         public DbSet<UserProfile> UserProfile { get; set; }
         public DbSet<UserBigTask> UserBigTask { get; set; }
         public DbSet<UserImage> UserImage { get; set; }

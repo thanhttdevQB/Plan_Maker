@@ -1,8 +1,12 @@
 ﻿
 @using SecondBrain.Models
+@using SecondBrain.DTOs.Task
 @model             SecondBrain.Models.UserTask
 @{
     ViewData["Title"] = "Home Page";
+}
+@{
+    ViewBag.Title = "Index";
 }
 
 <Fragment>
@@ -50,14 +54,14 @@
                         {
                             <td id=@(i.ToString() + j.ToString()) class="p-0 border-1 border-end-0 border-bottom-0 p-0">
                                 <div class="h-50 f" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()), 'f')"></div>
-                                <div class="h-50 s" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()), 's')"></div>
+                                <div class="h-50 s" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()), 'l')"></div>
                             </td>
                         }
                         else
                         {
                             <td id=@(i.ToString() + j.ToString()) class="p-0 border-1 border-bottom-0 p-0">
                                 <div class="h-50 f" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()), 'f')"></div>
-                                <div class="h-50 s" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()), 's')"></div>
+                                <div class="h-50 s" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()), 'l')"></div>
                             </td>
                         }
                     }
@@ -99,10 +103,13 @@
                         if (positionOfBlock == 'f') {
                             document.getElementById(thatId).querySelector('.f').style.backgroundColor='white' ;
                             document.getElementById(thatId).querySelector('.s').style.backgroundColor='white' ;
-                        } else {
+                        } else if(positionOfBlock == 's') {
                             document.getElementById(thatId).querySelector('.s').style.backgroundColor='white';
                             document.getElementById(parseInt(thatId) + 10).querySelector('.f').style.backgroundColor='white';
-                        }" style="float: right"></button>
+                        } else {
+                            document.getElementById(thatId).querySelector('.s').style.backgroundColor='white';
+                            document.getElementById('0' + (thatId % 10 + 1)).querySelector('.f').style.backgroundColor='white' ;
+                        }" style="float: right" />
             </div>
             <form asp-action="AddTask">
                 <div asp-validation-summary="ModelOnly"></div>
@@ -129,78 +136,86 @@
 </div>
 </Fragment>
 
-
 @section scripts {
-
     <script>
         var thatId = 0;
         var positionOfBlock = '';
+
+        var current = new Date()
+        var week = new Array()
+        // Starting Monday not Sunday
+        var first = ((current.getDate() - current.getDay()) + 1)
+        const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+        const listDays = []
+        for (var i = 0; i < 7; i++) {
+            const d = new Date(current.setDate(first++));
+            listDays.push(d);
+            document.getElementById('dateInWeek').innerHTML += "<th style='width: 14.1%;' ><div>" + daysOfWeek[d.getDay()] + "</div><div>" + d.getDate() + "</div></th>"
+        }
+
+        // When open the Modal, change the infor in Modal
         function OpenModal(theId, position) {
-            
-            if (position != 'l' && document.getElementById('ModalDT').style.display != 'block') {
+            if (document.getElementById('ModalDT').style.display != 'block') {
+                console.log(theId);
                 if (theId < 10) theId = "0" + theId
 
                 var rect = document.getElementById(theId).getBoundingClientRect();
+
                 if (position == 'f') {
                     document.getElementById(theId).querySelector('.f').style.backgroundColor = "orange";
                     document.getElementById(theId).querySelector('.s').style.backgroundColor = "orange";
-                } else {
+                } else if (position == 's') {
                     document.getElementById(theId).querySelector('.s').style.backgroundColor = "orange";
                     document.getElementById(parseInt(theId) + 10).querySelector('.f').style.backgroundColor = "orange";
+                } else {
+                    document.getElementById(theId).querySelector('.s').style.backgroundColor = "orange";
+                    document.getElementById("0" + (theId % 10 + 1)).querySelector('.f').style.backgroundColor = "orange";
                 }
+
                 if (theId % 10 < 3) document.getElementById('ModalDT').style.left = rect.right + "px";
                 else document.getElementById('ModalDT').style.left = (rect.left - document.documentElement.clientWidth / 100 * 36) + "px";
 
-                document.getElementById('TaskDay').value = "2011-09-29"
-                document.getElementById('StartTime').value = "21:00"
-                console.log(theId);
+                // Input infor
+                var dateIndex = theId % 10;
+                const date = new Date(listDays[dateIndex]);
+                var fullDate = date.getFullYear() + "-" + ((date.getMonth() >= 10) ? "" : "0") + (date.getMonth() + 1) + "-" + date.getDate();
+                document.getElementById('TaskDay').value = fullDate
+                var hour = Math.floor(theId / 10);
+                var minute = position == 'f' ? ":00" : ":30";
+                var fullHour = (hour >= 10 ? "" : "0") + hour + minute;
+                var fullEndHour = ((hour + 1) >= 10 ? "" : "0") + (hour == 23 ? "00" : (hour + 1)) + minute;
+                document.getElementById('StartTime').value = fullHour
+                document.getElementById('EndTime').value = fullEndHour
                 document.getElementById('ModalDT').style.display = 'block'
                 thatId = theId;
                 positionOfBlock = position
             }
         }
 
-        var current = new Date(2024, 6, 8);
-        var week = new Array()
-        // Starting Monday not Sunday
-        var first = ((current.getDate() - current.getDay()) + 1)
-        const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        for (var i = 0; i < 7; i++) {
-            const d = new Date(current.setDate(first++));
-            document.getElementById('dateInWeek').innerHTML += "<th style='width: 14.1%;' ><div>" + daysOfWeek[d.getDay()] + "</div><div>" + d.getDate() + "</div></th>" 
-        }
-
+        // When click button, color of div change
         function SendColor(startHour, startMinute, endHour, endMinute, Day) {
-            var theId
-            for (var i = startHour + 10; i < endHour; i += 10) {
-                theId = i;
-                if (i < 10) theId = "0" + theId;
-                document.getElementById(theId).style.backgroundColor = "orange";
-                document.getElementById(theId).addEventListener("click", function () {
-                    openModal(theId, 'l')
-                    document.getElementById(theId).innerHTML = "";
-                })
-            }
-            if (startHour < 10) startHour = "0" + theId;
-            document.getElementById(startHour).innerHTML = ""
-            var startMinH = 100 - (startMinute / 60 * 100);
-            var endMinH = endMinute / 60 * 100;
-            
-            if (startHour < endHour) {
-                if (startHour < 10) startHour = "0" + theId;
-                document.getElementById(startHour).innerHTML =   
-                "<div class='f' style = 'width: 95 %; height:" + (100 - startMinH) + "%' onclick = 'OpenModal(" + startHour + ", 'f')' > </div>" +
-                "<div class='s rounded-top' style = 'width: 95 %; height:" + (startMinH) + "%' onclick = 'OpenModal(" + startHour + ", 'l')' > </div>"
-                document.getElementById(endHour).innerHTML =
-                    "<div class='f rounded-bottom' style = 'width: 95 %; height:" + (endMinH) + "%' onclick = 'OpenModal(" + endHour + ", 'l')' > </div>" +
-                    "<div class='s' style = 'width: 95 %;height:" + (100 - endMinH) + "%' onclick = 'OpenModal(" + endHour + ", 's')' > </div>"
-            } else 
+            var theIdStartHour = startHour * 10 + Day
+            var theIdEndHour = endHour * 10 + Day
+            console.log("start");
+            console.log(theIdStartHour);
+            console.log(theIdEndHour);
+            for(var i = theIdStartHour; i < theIdEndHour; i += 10) 
             {
-                document.getElementById(startHour).innerHTML =
-                    "<div class='f' style = 'width: 95 %; height:" + (100 - startMinH) + "%' onclick = 'OpenModal(" + endHour + ", 'f')' > </div>" +
-                    "<div class='s rounded' style = 'width: 95 %;height:" + (startMinH + endMinH - 100) + "%' onclick = 'OpenModal(" + endHour + ", 'l')' > </div>" +
-                    "<div class='s' style = 'width: 95 %;height:" + (100 - endMinH) + "%' onclick = 'OpenModal(" + endHour + ", 's')' > </div>"
+                var theDivId = i;
+                console.log(theDivId)
+                document.getElementById(theDivId).querySelector('.f').style.backgroundColor = "orange";
+                document.getElementById(theDivId).querySelector('.s').style.backgroundColor = "orange";
             }
         }
     </script>
+    @if (@ViewBag.AllTask != null)
+    {
+        @foreach (UserTaskReadUpdateDTO x in @ViewBag.AllTask)
+        {
+            <script type="text/javascript">
+                @* console.log(@x.StartTime.Hour + " " + @x.EndTime.Minute + " " + @x.EndTime.Hour + " " + @x.EndTime.Minute + " " + @((int)x.TaskDay.DayOfWeek)) *@
+                    SendColor(@x.StartTime.Hour, @x.EndTime.Minute, @x.EndTime.Hour, @x.EndTime.Minute, @(((int)x.TaskDay.DayOfWeek == 0) ? 6 : (int)x.TaskDay.DayOfWeek - 1));
+            </script>
+        }
+    }
 }

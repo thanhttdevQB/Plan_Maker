@@ -225,7 +225,7 @@ namespace SecondBrain.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("SecondBrain.Models.BigTask", b =>
+            modelBuilder.Entity("SecondBrain.Models.UserBigTask", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -253,31 +253,31 @@ namespace SecondBrain.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BigTasks");
+                    b.ToTable("UserBigTask");
                 });
 
-            modelBuilder.Entity("SecondBrain.Models.Image", b =>
+            modelBuilder.Entity("SecondBrain.Models.UserImage", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int?>("PostId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Url")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<int?>("UserPostId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("PostId");
+                    b.HasIndex("UserPostId");
 
-                    b.ToTable("Images");
+                    b.ToTable("UserImage");
                 });
 
-            modelBuilder.Entity("SecondBrain.Models.Message", b =>
+            modelBuilder.Entity("SecondBrain.Models.UserMessage", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
@@ -299,10 +299,10 @@ namespace SecondBrain.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Messages");
+                    b.ToTable("UserMessage");
                 });
 
-            modelBuilder.Entity("SecondBrain.Models.Post", b =>
+            modelBuilder.Entity("SecondBrain.Models.UserPost", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -323,7 +323,29 @@ namespace SecondBrain.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Posts");
+                    b.ToTable("UserPost");
+                });
+
+            modelBuilder.Entity("SecondBrain.Models.UserProfile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Avatar")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsSuspend")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserAccountId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserAccountId");
+
+                    b.ToTable("UserProfile");
                 });
 
             modelBuilder.Entity("SecondBrain.Models.UserTask", b =>
@@ -333,9 +355,6 @@ namespace SecondBrain.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("BigTaskId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -359,11 +378,19 @@ namespace SecondBrain.Migrations
                     b.Property<DateOnly>("TaskDay")
                         .HasColumnType("date");
 
+                    b.Property<int?>("UserBigTaskId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserProfileId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("BigTaskId");
+                    b.HasIndex("UserBigTaskId");
 
-                    b.ToTable("Tasks");
+                    b.HasIndex("UserProfileId");
+
+                    b.ToTable("UserTask");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -417,28 +444,49 @@ namespace SecondBrain.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SecondBrain.Models.Image", b =>
+            modelBuilder.Entity("SecondBrain.Models.UserImage", b =>
                 {
-                    b.HasOne("SecondBrain.Models.Post", null)
+                    b.HasOne("SecondBrain.Models.UserPost", null)
                         .WithMany("Images")
-                        .HasForeignKey("PostId");
+                        .HasForeignKey("UserPostId");
+                });
+
+            modelBuilder.Entity("SecondBrain.Models.UserProfile", b =>
+                {
+                    b.HasOne("SecondBrain.Models.AppUser", "UserAccount")
+                        .WithMany()
+                        .HasForeignKey("UserAccountId");
+
+                    b.Navigation("UserAccount");
                 });
 
             modelBuilder.Entity("SecondBrain.Models.UserTask", b =>
                 {
-                    b.HasOne("SecondBrain.Models.BigTask", null)
+                    b.HasOne("SecondBrain.Models.UserBigTask", null)
                         .WithMany("Tasks")
-                        .HasForeignKey("BigTaskId");
+                        .HasForeignKey("UserBigTaskId");
+
+                    b.HasOne("SecondBrain.Models.UserProfile", "UserProfile")
+                        .WithMany("UserTasks")
+                        .HasForeignKey("UserProfileId")
+                        .IsRequired();
+
+                    b.Navigation("UserProfile");
                 });
 
-            modelBuilder.Entity("SecondBrain.Models.BigTask", b =>
+            modelBuilder.Entity("SecondBrain.Models.UserBigTask", b =>
                 {
                     b.Navigation("Tasks");
                 });
 
-            modelBuilder.Entity("SecondBrain.Models.Post", b =>
+            modelBuilder.Entity("SecondBrain.Models.UserPost", b =>
                 {
                     b.Navigation("Images");
+                });
+
+            modelBuilder.Entity("SecondBrain.Models.UserProfile", b =>
+                {
+                    b.Navigation("UserTasks");
                 });
 #pragma warning restore 612, 618
         }
