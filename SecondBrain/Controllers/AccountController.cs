@@ -60,6 +60,7 @@ namespace SecondBrain.Controllers
                 {
                     UserProfile User = _context.UserProfile.Include(x => x.UserAccount).Where(x => x.UserAccount.Email == model.Email).FirstOrDefault();
                     CookieOptions opt = new CookieOptions();
+                    opt.Expires = DateTimeOffset.Now.AddYears(1);
                     opt.HttpOnly = true;
                     Response.Cookies.Append("UserId", User.Id.ToString(), opt);
                     return Redirect("/");

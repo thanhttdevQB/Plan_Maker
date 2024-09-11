@@ -43,41 +43,47 @@
         @* Blank entity *@
         @for (int i = 0; i < 24; i++)
         {
-            if (i == 23)
+            if (i != 23)
+            {
+                    <tr style="height: 8vh; padding: 0;">
+                        <td style="width: 5px" class="p-0 border-1 border-top-0 border-left-0 border-end-0 border-start-0">
+                        </td>
+                        @for (int j = 0; j < 7; j++)
+                        {
+                            <td id=@(i.ToString() + j.ToString()) class="hour border-1 border-end-0 p-0">
+                                @for (var k = 0; k < 60; k++)
+                                {
+                                    <div class="@k minute" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()), @k)"></div>
+                                }
+                            </td>
+                        }
+                    </tr>
+            }
+            else
             {
                 <tr style="height: 8vh;">
                     <td style="width: 5px" class="p-0 border-0">
                     </td>
                     @for (int j = 0; j < 7; j++)
                     {
-                        @if (j == 6)
+                        @if (j != 6)
                         {
-                            <td id=@(i.ToString() + j.ToString()) class="p-0 border-1 border-end-0 border-bottom-0 p-0">
-                                <div class="h-50 f" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()), 'f')"></div>
-                                <div class="h-50 s" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()), 'l')"></div>
+                            <td id=@(i.ToString() + j.ToString()) class="hour p-0 border-1 border-bottom-0 p-0">
+                                @for (var k = 0; k < 60; k++)
+                                {
+                                    <div class="@k minute" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()), @k)"></div>
+                                }
                             </td>
                         }
                         else
                         {
-                            <td id=@(i.ToString() + j.ToString()) class="p-0 border-1 border-bottom-0 p-0">
-                                <div class="h-50 f" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()), 'f')"></div>
-                                <div class="h-50 s" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()), 'l')"></div>
+                            <td id=@(i.ToString() + j.ToString()) class="hour p-0 border-1 border-end-0 border-bottom-0 p-0">
+                                @for (var k = 0; k < 60; k++)
+                                {
+                                    <div class="@k minute" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()), @k)"></div>
+                                }
                             </td>
                         }
-                    }
-                </tr>
-            }
-            else
-            {
-                <tr style="height: 8vh; padding: 0;">
-                    <td style="width: 5px" class="p-0 border-1 border-top-0 border-left-0 border-end-0 border-start-0">
-                    </td>
-                    @for (int j = 0; j < 7; j++)
-                    {
-                        <td id=@(i.ToString() + j.ToString()) class="border-1 border-end-0 p-0">
-                            <div class="h-50 f" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()), 'f')"></div>
-                            <div class="h-50 s" style="width: 95%;" onclick="OpenModal(@(i.ToString() + j.ToString()), 's')"></div>
-                        </td>
                     }
                 </tr>
             }
@@ -99,17 +105,7 @@
         <div class="">
             <div class="">
                 <button type="button" class="btn-close mb-3" onclick="document.getElementById('ModalDT').style.display='none';
-                        
-                        if (positionOfBlock == 'f') {
-                            document.getElementById(thatId).querySelector('.f').style.backgroundColor='white' ;
-                            document.getElementById(thatId).querySelector('.s').style.backgroundColor='white' ;
-                        } else if(positionOfBlock == 's') {
-                            document.getElementById(thatId).querySelector('.s').style.backgroundColor='white';
-                            document.getElementById(parseInt(thatId) + 10).querySelector('.f').style.backgroundColor='white';
-                        } else {
-                            document.getElementById(thatId).querySelector('.s').style.backgroundColor='white';
-                            document.getElementById('0' + (thatId % 10 + 1)).querySelector('.f').style.backgroundColor='white' ;
-                        }" style="float: right" />
+                        SetColorDiv(thatId, positionOfBlock, 'white')" style="float: right" />
             </div>
             <form asp-action="AddTask">
                 <div asp-validation-summary="ModelOnly"></div>
@@ -153,24 +149,56 @@
             document.getElementById('dateInWeek').innerHTML += "<th style='width: 14.1%;' ><div>" + daysOfWeek[d.getDay()] + "</div><div>" + d.getDate() + "</div></th>"
         }
 
+        window.onload = function () {
+            var parent = document.querySelector('.hour');
+            var children = document.querySelectorAll('.minute');
+            var parentHeight = parent.offsetHeight;
+            var childHeight = parentHeight / 60;
+
+            children.forEach(function (child) {
+                child.style.height = childHeight + 'px';
+            });
+        };
+
+        function SetColorDiv(theId, position, color) {
+            if (theId < 10) theId = "0" + theId
+            // console.log(Math.floor(theId / 10));
+            if (Math.floor(theId / 10) != 23 || position < 30) {
+                if (position < 30) {
+                    // document.getElementById(theId).querySelector('.f').style.backgroundColor = "orange";
+                    // document.getElementById(theId).querySelector('.s').style.backgroundColor = "orange";
+                    for (var i = 0; i < 60; i++) {
+                        document.getElementById(theId).getElementsByClassName(i).item(0).style.backgroundColor = color;
+                    }
+                } else {
+                    // document.getElementById(theId).querySelector('.s').style.backgroundColor = color;
+                    // document.getElementById(parseInt(theId) + 10).querySelector('.f').style.backgroundColor = color;
+                    for (var i = 30; i < 60; i++) {
+                        document.getElementById(theId).getElementsByClassName(i).item(0).style.backgroundColor = color;
+                    }
+                    for (var i = 0; i < 30; i++) {
+                        document.getElementById(theId + 10).getElementsByClassName(i).item(0).style.backgroundColor = color;
+                    }
+                }
+            }
+            else {
+                for (var i = 30; i < 60; i++) {
+                    document.getElementById(theId).getElementsByClassName(i).item(0).style.backgroundColor = color;
+                }
+                for (var i = 0; i < 29; i++) {
+                    document.getElementById('0' + (theId % 10 + 1)).getElementsByClassName(i).item(0).style.backgroundColor = color;
+                }
+            }
+        }
+
         // When open the Modal, change the infor in Modal
         function OpenModal(theId, position) {
             if (document.getElementById('ModalDT').style.display != 'block') {
-                console.log(theId);
                 if (theId < 10) theId = "0" + theId
-
+                // console.log(theId);
+                // console.log(theId % 10 + 1);
                 var rect = document.getElementById(theId).getBoundingClientRect();
-
-                if (position == 'f') {
-                    document.getElementById(theId).querySelector('.f').style.backgroundColor = "orange";
-                    document.getElementById(theId).querySelector('.s').style.backgroundColor = "orange";
-                } else if (position == 's') {
-                    document.getElementById(theId).querySelector('.s').style.backgroundColor = "orange";
-                    document.getElementById(parseInt(theId) + 10).querySelector('.f').style.backgroundColor = "orange";
-                } else {
-                    document.getElementById(theId).querySelector('.s').style.backgroundColor = "orange";
-                    document.getElementById("0" + (theId % 10 + 1)).querySelector('.f').style.backgroundColor = "orange";
-                }
+                SetColorDiv(theId, position, 'orange')
 
                 if (theId % 10 < 3) document.getElementById('ModalDT').style.left = rect.right + "px";
                 else document.getElementById('ModalDT').style.left = (rect.left - document.documentElement.clientWidth / 100 * 36) + "px";
@@ -196,16 +224,53 @@
         function SendColor(startHour, startMinute, endHour, endMinute, Day) {
             var theIdStartHour = startHour * 10 + Day
             var theIdEndHour = endHour * 10 + Day
-            console.log("start");
-            console.log(theIdStartHour);
-            console.log(theIdEndHour);
-            for(var i = theIdStartHour; i < theIdEndHour; i += 10) 
-            {
-                var theDivId = i;
-                console.log(theDivId)
-                document.getElementById(theDivId).querySelector('.f').style.backgroundColor = "orange";
-                document.getElementById(theDivId).querySelector('.s').style.backgroundColor = "orange";
+            // console.log("start");
+            // console.log(theIdStartHour);
+            // console.log(theIdEndHour);
+            // console.log(startHour);
+            // console.log(startMinute);
+            // console.log(endHour);
+            // console.log(endMinute);
+
+            // for(var i = theIdStartHour; i < theIdEndHour; i += 10) 
+            // {
+            //     var theDivId = i;
+            //     console.log(theDivId)
+            //     document.getElementById(theDivId).querySelector('.f').style.backgroundColor = "orange";
+            //     document.getElementById(theDivId).querySelector('.s').style.backgroundColor = "orange";
+            // }
+
+            if (startHour == endHour) {
+                for (var i = startMinute; i <= endMinute; i++) {
+                    // console.log(document.getElementById(theIdStartHour).getElementsByClassName(i))
+                    document.getElementById(theIdStartHour).getElementsByClassName(i).item(0).style.backgroundColor = "orange";
+                }
+            } else {
+                for (var i = startMinute; i < 60; i++) {
+                    // console.log(document.getElementById(theIdStartHour).getElementsByClassName(i))
+                    document.getElementById(theIdStartHour).getElementsByClassName(i).item(0).style.backgroundColor = "orange";
+                    // if (theIdStartHour == 36) {
+                    //     console.log(i);
+                    // }
+                }
+                for (var i = 0; i <= endMinute; i++) {
+                    // console.log(document.getElementById(theIdStartHour).getElementsByClassName(i))
+                    document.getElementById(theIdEndHour).getElementsByClassName(i).item(0).style.backgroundColor = "orange";
+                }
             }
+
+            if (theIdStartHour + 10 < theIdEndHour) {
+                for (var i = theIdStartHour + 10; i < theIdEndHour; i += 10) {
+                    // console.log("i: " + i);
+                    const collection = document.getElementById(i).getElementsByClassName('minute');
+                    for (let i = 0; i < collection.length; i++) {
+                        collection[i].style.backgroundColor = "orange";
+                    }
+                    // document.getElementById(i).querySelector('.minute').style.backgroundColor = "orange";
+                }
+            }
+
+
         }
     </script>
     @if (@ViewBag.AllTask != null)
@@ -214,7 +279,7 @@
         {
             <script type="text/javascript">
                 @* console.log(@x.StartTime.Hour + " " + @x.EndTime.Minute + " " + @x.EndTime.Hour + " " + @x.EndTime.Minute + " " + @((int)x.TaskDay.DayOfWeek)) *@
-                    SendColor(@x.StartTime.Hour, @x.EndTime.Minute, @x.EndTime.Hour, @x.EndTime.Minute, @(((int)x.TaskDay.DayOfWeek == 0) ? 6 : (int)x.TaskDay.DayOfWeek - 1));
+                SendColor(@x.StartTime.Hour, @x.EndTime.Minute, @x.EndTime.Hour, @x.EndTime.Minute, @(((int)x.TaskDay.DayOfWeek == 0) ? 6 : (int)x.TaskDay.DayOfWeek - 1));
             </script>
         }
     }
