@@ -1,10 +1,6 @@
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
-
 There are many great Plan maker project available on GitHub; however, I didn't find one that really suited my needs so I created this enhanced one. I want to create a Plan maker intergrated the promodoro working method.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- GETTING STARTED -->
 ## Getting Started
@@ -31,8 +27,6 @@ _Below is an example of how you can instruct your audience on installing and set
    dotnet ef database update
    ```
 5. Run the project
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Contact
 
