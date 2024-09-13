@@ -7,6 +7,7 @@
 }
 @{
     ViewBag.Title = "Index";
+    // 1h: fix send color, fix set color
 }
 
 <Fragment>
@@ -105,7 +106,7 @@
         <div class="">
             <div class="">
                 <button type="button" class="btn-close mb-3" onclick="document.getElementById('ModalDT').style.display='none';
-                        SetColorDiv(thatId, positionOfBlock, 'white')" style="float: right" />
+                        SetColorDiv(thatId, positionOfBlock, 'white', true)" style="float: right" />
             </div>
             <form asp-action="AddTask">
                 <div asp-validation-summary="ModelOnly"></div>
@@ -136,6 +137,10 @@
     <script>
         var thatId = 0;
         var positionOfBlock = '';
+        var hourRender = document.querySelector('.hour');
+        var minuteRender = document.querySelectorAll('.minute');
+        var hourHeight = hourRender.offsetHeight;
+        var minuteHeight = hourHeight / 60;
 
         var current = new Date()
         var week = new Array()
@@ -149,43 +154,71 @@
             document.getElementById('dateInWeek').innerHTML += "<th style='width: 14.1%;' ><div>" + daysOfWeek[d.getDay()] + "</div><div>" + d.getDate() + "</div></th>"
         }
 
-        window.onload = function () {
-            var parent = document.querySelector('.hour');
-            var children = document.querySelectorAll('.minute');
-            var parentHeight = parent.offsetHeight;
-            var childHeight = parentHeight / 60;
+        minuteRender.forEach(function (child) {
+            child.style.height = minuteHeight + 'px';
+        });
 
-            children.forEach(function (child) {
-                child.style.height = childHeight + 'px';
-            });
-        };
+        function GetColorById(id, position) {
+            // try {
+            return window.getComputedStyle(document.getElementById(id).getElementsByClassName(position).item(0)).backgroundColor
+           
+            // } catch {
+            //     return null
+            // }
+        }
 
-        function SetColorDiv(theId, position, color) {
+        function SetColorDiv(theId, position, color, isClose) {
+            var whiteColor = "rgba(0, 0, 0, 0)"
             if (theId < 10) theId = "0" + theId
             // console.log(Math.floor(theId / 10));
+            console.log(theId)
+            console.log(position)
             if (Math.floor(theId / 10) != 23 || position < 30) {
                 if (position < 30) {
+                    console.log('first')
                     // document.getElementById(theId).querySelector('.f').style.backgroundColor = "orange";
                     // document.getElementById(theId).querySelector('.s').style.backgroundColor = "orange";
                     for (var i = 0; i < 60; i++) {
+                        // console.log(GetColorById(theId, i))
+                        if ((isClose && GetColorById(theId, i) == whiteColor) || (!isClose && GetColorById(theId, i) != whiteColor)) {
+                            break;
+                        }
                         document.getElementById(theId).getElementsByClassName(i).item(0).style.backgroundColor = color;
                     }
                 } else {
+                    console.log('sec')
                     // document.getElementById(theId).querySelector('.s').style.backgroundColor = color;
                     // document.getElementById(parseInt(theId) + 10).querySelector('.f').style.backgroundColor = color;
                     for (var i = 30; i < 60; i++) {
+                        if ((isClose && GetColorById(theId, i) == whiteColor) || (!isClose && GetColorById(theId, i) != whiteColor)) {
+                            return null
+                        }
                         document.getElementById(theId).getElementsByClassName(i).item(0).style.backgroundColor = color;
                     }
                     for (var i = 0; i < 30; i++) {
+                        console.log('layer 2');
+                        console.log(GetColorById(theId, i));
+                        console.log(theId);
+                        console.log(i);
+                        if ((isClose && GetColorById(theId + 10, i) == whiteColor) || (!isClose && GetColorById(theId, i) != whiteColor)) {
+                            break;
+                        }
                         document.getElementById(theId + 10).getElementsByClassName(i).item(0).style.backgroundColor = color;
                     }
                 }
             }
             else {
+                console.log('third')
                 for (var i = 30; i < 60; i++) {
+                    if ((isClose && GetColorById(theId, i) == whiteColor) || (!isClose && GetColorById(theId, i) != whiteColor)) {
+                        return null;
+                    }
                     document.getElementById(theId).getElementsByClassName(i).item(0).style.backgroundColor = color;
                 }
                 for (var i = 0; i < 29; i++) {
+                    if ((isClose && GetColorById(theId, i) == whiteColor) || (!isClose && GetColorById(theId, i) != whiteColor)) {
+                        break;
+                    }
                     document.getElementById('0' + (theId % 10 + 1)).getElementsByClassName(i).item(0).style.backgroundColor = color;
                 }
             }
@@ -198,7 +231,7 @@
                 // console.log(theId);
                 // console.log(theId % 10 + 1);
                 var rect = document.getElementById(theId).getBoundingClientRect();
-                SetColorDiv(theId, position, 'orange')
+                SetColorDiv(theId, position, 'orange', false)
 
                 if (theId % 10 < 3) document.getElementById('ModalDT').style.left = rect.right + "px";
                 else document.getElementById('ModalDT').style.left = (rect.left - document.documentElement.clientWidth / 100 * 36) + "px";
@@ -215,13 +248,14 @@
                 document.getElementById('StartTime').value = fullHour
                 document.getElementById('EndTime').value = fullEndHour
                 document.getElementById('ModalDT').style.display = 'block'
+
                 thatId = theId;
                 positionOfBlock = position
             }
         }
 
         // When click button, color of div change
-        function SendColor(startHour, startMinute, endHour, endMinute, Day) {
+        function RenderTask(startHour, startMinute, endHour, endMinute, Day) {
             var theIdStartHour = startHour * 10 + Day
             var theIdEndHour = endHour * 10 + Day
             // console.log("start");
@@ -240,11 +274,28 @@
             //     document.getElementById(theDivId).querySelector('.s').style.backgroundColor = "orange";
             // }
 
-            if (startHour == endHour) {
-                for (var i = startMinute; i <= endMinute; i++) {
-                    // console.log(document.getElementById(theIdStartHour).getElementsByClassName(i))
-                    document.getElementById(theIdStartHour).getElementsByClassName(i).item(0).style.backgroundColor = "orange";
+            if (startHour == endHour || (endMinute == 0 && theIdStartHour + 10 == theIdEndHour)) {
+                if (endMinute == 0 && theIdStartHour + 10 == theIdEndHour) {
+                    endMinute = 60;
                 }
+                var firstDiv = document.getElementById(theIdStartHour).getElementsByClassName(startMinute).item(0)
+                var height = minuteHeight
+                for (var i = startMinute + 1; i < endMinute; i++) {
+                    var appendedDiv = document.getElementById(theIdStartHour).getElementsByClassName(i).item(0)
+                    // firstDiv.appendChild(appendedDiv);
+                    // console.log("start")
+                    // console.log(theIdStartHour);
+                    // console.log(i);
+                    // console.log(document.getElementById(theIdStartHour).getElementsByClassName(i).item(0));
+                    height += minuteHeight
+                    appendedDiv.remove();
+                    // console.log(document.getElementById(theIdStartHour).getElementsByClassName(i))
+                }
+                console.log("firstDiv.style.height");
+                firstDiv.style.height = height + "px"
+                console.log(firstDiv.offsetHeight)
+                console.log(firstDiv);
+                firstDiv.style.backgroundColor = 'orange';
             } else {
                 for (var i = startMinute; i < 60; i++) {
                     // console.log(document.getElementById(theIdStartHour).getElementsByClassName(i))
@@ -253,7 +304,7 @@
                     //     console.log(i);
                     // }
                 }
-                for (var i = 0; i <= endMinute; i++) {
+                for (var i = 0; i < endMinute; i++) {
                     // console.log(document.getElementById(theIdStartHour).getElementsByClassName(i))
                     document.getElementById(theIdEndHour).getElementsByClassName(i).item(0).style.backgroundColor = "orange";
                 }
@@ -269,8 +320,6 @@
                     // document.getElementById(i).querySelector('.minute').style.backgroundColor = "orange";
                 }
             }
-
-
         }
     </script>
     @if (@ViewBag.AllTask != null)
@@ -279,7 +328,7 @@
         {
             <script type="text/javascript">
                 @* console.log(@x.StartTime.Hour + " " + @x.EndTime.Minute + " " + @x.EndTime.Hour + " " + @x.EndTime.Minute + " " + @((int)x.TaskDay.DayOfWeek)) *@
-                SendColor(@x.StartTime.Hour, @x.EndTime.Minute, @x.EndTime.Hour, @x.EndTime.Minute, @(((int)x.TaskDay.DayOfWeek == 0) ? 6 : (int)x.TaskDay.DayOfWeek - 1));
+                RenderTask(@x.StartTime.Hour, @x.EndTime.Minute, @x.EndTime.Hour, @x.EndTime.Minute, @(((int)x.TaskDay.DayOfWeek == 0) ? 6 : (int)x.TaskDay.DayOfWeek - 1));
             </script>
         }
     }
