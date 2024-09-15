@@ -13,12 +13,16 @@ namespace SecondBrain.Controllers
     public class HomeController : Controller
     {
         private readonly SignInManager<AppUser> _SignInManager;
-        public readonly IUserTask _IUserTask;
+        public readonly IUserTask _IUserTask; 
+        private readonly UserManager<AppUser> _userManager;
+        private readonly SecondBrainDataContext _context;
 
-        public HomeController(IUserTask IUserTask, SignInManager<AppUser> SignInManager)
+        public HomeController(IUserTask IUserTask, SignInManager<AppUser> SignInManager, SecondBrainDataContext context, UserManager<AppUser> userManager)
         {
             _SignInManager = SignInManager;
             _IUserTask = IUserTask;
+            _context = context;
+            _userManager = userManager;
         }
 
         public IActionResult CheckAndReturnLogin()
@@ -46,18 +50,7 @@ namespace SecondBrain.Controllers
             return View();
         }
 
-        public async Task<IActionResult> AddTask(UserTaskCreateDTO NewUserTask)
-        {
-            CheckAndReturnLogin();
-
-            string UserId = Request.Cookies.Where(x => x.Key == "UserId").FirstOrDefault().Value;
-            NewUserTask.UserId = Guid.Parse(UserId);
-            var result = await _IUserTask.AddTask(NewUserTask);
-            await GetTaskByUserId();
-            return View("Index");
-        }
-
-        public async Task GetTaskByUserId()
+        public async Task<IActionResult> GetTaskByUserId()
         {
             try
             {
@@ -65,28 +58,38 @@ namespace SecondBrain.Controllers
                 var allTask = await _IUserTask.GetAllTaskByUserId(Guid.Parse(UserId));
                 List<UserTaskReadUpdateDTO> result = allTask;
                 ViewBag.AllTask = result;
+                return View();
             } catch
             {
-                Response.Redirect("/Account/SignIn");
+                AccountController newAccountController = new AccountController(_SignInManager, _userManager, _context);
+                return newAccountController.View();
             }
         }
 
-        public IActionResult UpdateTask(UserTaskReadUpdateDTO NewUserTask)
+        public async Task<IActionResult> UpdateTask(UserTaskCreateDTO NewUserTask)
         {
             CheckAndReturnLogin();
 
-            var result = _IUserTask.UpdateTask(NewUserTask);
+            string UserId = Request.Cookies.Where(x => x.Key == "UserId").FirstOrDefault().Value;
+            NewUserTask.UserId = Guid.Parse(UserId);
 
-            return View("Home/Index");
+            var result = await _IUserTask.UpdateTask(NewUserTask);
+
+            return RedirectToAction("Index");
         }
 
-        public IActionResult DeleteTask(Guid TaskId)
+        public async Task<IActionResult> DeleteTask(UserTaskCreateDTO NewUserTask)
         {
             CheckAndReturnLogin();
 
-            var result = _IUserTask.DeleteTask(TaskId);
+            var result = _IUserTask.DeleteTask(NewUserTask.Status);
 
-            return View("Home/Index");
+            return RedirectToAction("Index");
+        }
+
+        public ActionResult FormSuccess()
+        {
+            return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

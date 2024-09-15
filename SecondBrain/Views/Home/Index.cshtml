@@ -7,7 +7,6 @@
 }
 @{
     ViewBag.Title = "Index";
-    // 1h: fix send color, fix set color
 }
 
 <Fragment>
@@ -102,13 +101,17 @@
       height: 100vh;
       overflow: auto;
        display: none">
-    <div class="shadow-lg p-3 rounded bg-white" style="width: 32vw; height: 50vh; margin: 2vw">
+    <div class="shadow-lg p-3 rounded bg-white" style="width: 32vw; height: 50vh; margin: 2vw; ">
         <div class="">
             <div class="">
                 <button type="button" class="btn-close mb-3" onclick="document.getElementById('ModalDT').style.display='none';
-                        SetColorDiv(thatId, positionOfBlock, 'white', true)" style="float: right" />
+                        SetColorDiv(thatId, positionOfBlock, 'rgba(0, 0, 0, 0)', true)" style="float: right" />
+                    <form asp-action="DeleteTask" asp-controller="Home" method="post">
+                        <input asp-for="Status" class="form-control mt-2 mb-2 me-2" placeholder="" />
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
             </div>
-            <form asp-action="AddTask">
+                <form asp-action="UpdateTask">
                 <div asp-validation-summary="ModelOnly"></div>
                 <div class="form-group">
                     <input asp-for="Name" class="form-control mt-2 mb-2" placeholder="Add Title" />
@@ -119,7 +122,7 @@
                     <input asp-for="EndTime" class="form-control mt-2 mb-2" placeholder="" />
                 </div>
                 <label asp-for="Status">Status</label>
-                <select asp-for="Status" id="cars">
+                <select asp-for="Status">
                     <option value="1">Doing</option>
                     <option value="2">Done</option>
                     <option value="3">Failed</option>
@@ -130,7 +133,7 @@
             </form>
         </div>
     </div>
-</div>
+    </div>
 </Fragment>
 
 @section scripts {
@@ -141,11 +144,15 @@
         var minuteRender = document.querySelectorAll('.minute');
         var hourHeight = hourRender.offsetHeight;
         var minuteHeight = hourHeight / 60;
+        var listTask = []
 
         var current = new Date()
         var week = new Array()
         // Starting Monday not Sunday
         var first = ((current.getDate() - current.getDay()) + 1)
+        if (current.getDay() == 0) {
+            first = ((current.getDate() - 7) + 1)
+        }
         const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
         const listDays = []
         for (var i = 0; i < 7; i++) {
@@ -153,6 +160,8 @@
             listDays.push(d);
             document.getElementById('dateInWeek').innerHTML += "<th style='width: 14.1%;' ><div>" + daysOfWeek[d.getDay()] + "</div><div>" + d.getDate() + "</div></th>"
         }
+        var firstDayOfListDay = (listDays[0].getMonth() + 1) + '/' + listDays[0].getDate() + '/' + listDays[0].getFullYear()
+        var lastDayOfListDay = (listDays[6].getMonth() + 1) + '/' + listDays[6].getDate() + '/' + listDays[6].getFullYear()
 
         minuteRender.forEach(function (child) {
             child.style.height = minuteHeight + 'px';
@@ -173,7 +182,7 @@
             // console.log(Math.floor(theId / 10));
             console.log(theId)
             console.log(position)
-            if (Math.floor(theId / 10) != 23 || position < 30) {
+            if (Math.floor(theId / 10) != 23) {
                 if (position < 30) {
                     console.log('first')
                     // document.getElementById(theId).querySelector('.f').style.backgroundColor = "orange";
@@ -181,6 +190,7 @@
                     for (var i = 0; i < 60; i++) {
                         // console.log(GetColorById(theId, i))
                         if ((isClose && GetColorById(theId, i) == whiteColor) || (!isClose && GetColorById(theId, i) != whiteColor)) {
+                            console.log('break at:' + i + ' isClose: ' + isClose + ' color: ' + GetColorById(theId, i))
                             break;
                         }
                         document.getElementById(theId).getElementsByClassName(i).item(0).style.backgroundColor = color;
@@ -196,10 +206,10 @@
                         document.getElementById(theId).getElementsByClassName(i).item(0).style.backgroundColor = color;
                     }
                     for (var i = 0; i < 30; i++) {
-                        console.log('layer 2');
-                        console.log(GetColorById(theId, i));
-                        console.log(theId);
-                        console.log(i);
+                        // console.log('layer 2');
+                        // console.log(GetColorById(theId, i));
+                        // console.log(theId);
+                        // console.log(i);
                         if ((isClose && GetColorById(theId + 10, i) == whiteColor) || (!isClose && GetColorById(theId, i) != whiteColor)) {
                             break;
                         }
@@ -224,111 +234,197 @@
             }
         }
 
+        function convertTo24hFormat(timeStr) {
+            let [time, modifier] = timeStr.split(' ');
+
+            let [hours, minutes] = time.split(':');
+
+            if (modifier === 'PM' && hours !== '12') {
+                hours = parseInt(hours, 10) + 12;
+            }
+
+            if (modifier === 'AM' && hours === '12') {
+                hours = '00';
+            }
+
+            if (hours.length === 1) {
+                hours = '0' + hours;
+            }
+
+            return `${hours}:${minutes}`;
+        }
+
         // When open the Modal, change the infor in Modal
         function OpenModal(theId, position) {
             if (document.getElementById('ModalDT').style.display != 'block') {
-                if (theId < 10) theId = "0" + theId
-                // console.log(theId);
-                // console.log(theId % 10 + 1);
-                var rect = document.getElementById(theId).getBoundingClientRect();
-                SetColorDiv(theId, position, 'orange', false)
+                if (GetColorById(theId, position) == "rgba(0, 0, 0, 0)") {
+                    if (theId < 10) theId = "0" + theId
+                    // console.log(theId);
+                    // console.log(theId % 10 + 1);
+                    var rect = document.getElementById(theId).getBoundingClientRect();
+                    SetColorDiv(theId, position, 'orange', false)
 
-                if (theId % 10 < 3) document.getElementById('ModalDT').style.left = rect.right + "px";
-                else document.getElementById('ModalDT').style.left = (rect.left - document.documentElement.clientWidth / 100 * 36) + "px";
+                    if (theId % 10 < 3) document.getElementById('ModalDT').style.left = rect.right + "px";
+                    else document.getElementById('ModalDT').style.left = (rect.left - document.documentElement.clientWidth / 100 * 36) + "px";
 
-                // Input infor
-                var dateIndex = theId % 10;
-                const date = new Date(listDays[dateIndex]);
-                var fullDate = date.getFullYear() + "-" + ((date.getMonth() >= 10) ? "" : "0") + (date.getMonth() + 1) + "-" + date.getDate();
-                document.getElementById('TaskDay').value = fullDate
-                var hour = Math.floor(theId / 10);
-                var minute = position == 'f' ? ":00" : ":30";
-                var fullHour = (hour >= 10 ? "" : "0") + hour + minute;
-                var fullEndHour = ((hour + 1) >= 10 ? "" : "0") + (hour == 23 ? "00" : (hour + 1)) + minute;
-                document.getElementById('StartTime').value = fullHour
-                document.getElementById('EndTime').value = fullEndHour
-                document.getElementById('ModalDT').style.display = 'block'
+                    // Input infor StartTime: 'x.StartTime', endTime: 'x.EndTime', taskDate: 'x.TaskDay', TaskName: 'x.Name', TaskDescription: 'x.Description'
+                    var dateIndex = theId % 10;
+                    const date = new Date(listDays[dateIndex]);
+                    var fullDate = date.getFullYear() + "-" + ((date.getMonth() >= 10) ? "" : "0") + (date.getMonth() + 1) + "-" + date.getDate();
+                    document.getElementById('TaskDay').value = fullDate
+                    var hour = Math.floor(theId / 10);
+                    var minute = position < 30 ? ":00" : ":30";
+                    var fullHour = (hour >= 10 ? "" : "0") + hour + minute;
+                    var fullEndHour = ((hour + 1) >= 10 ? "" : "0") + (hour == 23 ? "00" : (hour + 1)) + minute;
+                    document.getElementById('StartTime').value = fullHour
+                    document.getElementById('EndTime').value = fullEndHour
+                    document.getElementById('ModalDT').style.display = 'block'
 
-                thatId = theId;
-                positionOfBlock = position
-            }
-        }
-
-        // When click button, color of div change
-        function RenderTask(startHour, startMinute, endHour, endMinute, Day) {
-            var theIdStartHour = startHour * 10 + Day
-            var theIdEndHour = endHour * 10 + Day
-            // console.log("start");
-            // console.log(theIdStartHour);
-            // console.log(theIdEndHour);
-            // console.log(startHour);
-            // console.log(startMinute);
-            // console.log(endHour);
-            // console.log(endMinute);
-
-            // for(var i = theIdStartHour; i < theIdEndHour; i += 10) 
-            // {
-            //     var theDivId = i;
-            //     console.log(theDivId)
-            //     document.getElementById(theDivId).querySelector('.f').style.backgroundColor = "orange";
-            //     document.getElementById(theDivId).querySelector('.s').style.backgroundColor = "orange";
-            // }
-
-            if (startHour == endHour || (endMinute == 0 && theIdStartHour + 10 == theIdEndHour)) {
-                if (endMinute == 0 && theIdStartHour + 10 == theIdEndHour) {
-                    endMinute = 60;
+                    thatId = theId;
+                    positionOfBlock = position
                 }
-                var firstDiv = document.getElementById(theIdStartHour).getElementsByClassName(startMinute).item(0)
-                var height = minuteHeight
-                for (var i = startMinute + 1; i < endMinute; i++) {
-                    var appendedDiv = document.getElementById(theIdStartHour).getElementsByClassName(i).item(0)
-                    // firstDiv.appendChild(appendedDiv);
-                    // console.log("start")
-                    // console.log(theIdStartHour);
-                    // console.log(i);
-                    // console.log(document.getElementById(theIdStartHour).getElementsByClassName(i).item(0));
-                    height += minuteHeight
-                    appendedDiv.remove();
-                    // console.log(document.getElementById(theIdStartHour).getElementsByClassName(i))
-                }
-                console.log("firstDiv.style.height");
-                firstDiv.style.height = height + "px"
-                console.log(firstDiv.offsetHeight)
-                console.log(firstDiv);
-                firstDiv.style.backgroundColor = 'orange';
-            } else {
-                for (var i = startMinute; i < 60; i++) {
-                    // console.log(document.getElementById(theIdStartHour).getElementsByClassName(i))
-                    document.getElementById(theIdStartHour).getElementsByClassName(i).item(0).style.backgroundColor = "orange";
-                    // if (theIdStartHour == 36) {
-                    //     console.log(i);
-                    // }
-                }
-                for (var i = 0; i < endMinute; i++) {
-                    // console.log(document.getElementById(theIdStartHour).getElementsByClassName(i))
-                    document.getElementById(theIdEndHour).getElementsByClassName(i).item(0).style.backgroundColor = "orange";
-                }
-            }
+                else {
+                    var day = theId % 10;
+                    var hour = Math.floor(theId / 10)
 
-            if (theIdStartHour + 10 < theIdEndHour) {
-                for (var i = theIdStartHour + 10; i < theIdEndHour; i += 10) {
-                    // console.log("i: " + i);
-                    const collection = document.getElementById(i).getElementsByClassName('minute');
-                    for (let i = 0; i < collection.length; i++) {
-                        collection[i].style.backgroundColor = "orange";
-                    }
-                    // document.getElementById(i).querySelector('.minute').style.backgroundColor = "orange";
+                    var rect = document.getElementById(theId).getBoundingClientRect();
+                    if (theId % 10 < 3) document.getElementById('ModalDT').style.left = rect.right + "px";
+                    else document.getElementById('ModalDT').style.left = (rect.left - document.documentElement.clientWidth / 100 * 36) + "px";
+
+                    listTask.forEach(task => {
+                        var taskDate = new Date(task.taskDate)
+                        theDayOfWeek = taskDate.getDay() == 0 ? 6 : taskDate.getDay() - 1
+                        if (theDayOfWeek == day) {
+                            document.getElementById('StartTime').value = convertTo24hFormat(task.StartTime)
+                            document.getElementById('EndTime').value = convertTo24hFormat(task.endTime)
+                            document.getElementById('Description').value = task.TaskDescription
+                            document.getElementById('Name').value = task.TaskName
+                            document.getElementById('Status').value = task.TaskId
+                            var parts = task.taskDate.split('/');
+                            var theAssignDate = (parts[2].length === 2 ? '20' + parts[2] : parts[2]) + "-" + (parts[0].length == 1 ? '0' + parts[0] : parts[0]) + "-" + (parts[1].length === 1 ? '0' + parts[1] : parts[1]);
+                            document.getElementById('TaskDay').value = theAssignDate
+                        }
+                    })
+
+                    document.getElementById('ModalDT').style.display = 'block'
                 }
             }
         }
     </script>
     @if (@ViewBag.AllTask != null)
     {
+        <script type="text/javascript">
+            // When click button, color of div change
+            function RenderTask(startHour, startMinute, endHour, endMinute, Day, TaskName, TaskDescription, Status) {
+                var color = Status == 1 ? 'orange' : (Status == 2 ? 'green' : 'red');
+                var theIdStartHour = startHour * 10 + Day
+                var theIdEndHour = endHour * 10 + Day
+                // console.log("start");
+                // console.log(theIdStartHour);
+                // console.log(theIdEndHour);
+                // console.log(startHour);
+                // console.log(startMinute);
+                // console.log(endHour);
+                // console.log(endMinute);
+
+                if (startHour == endHour || (endMinute == 0 && theIdStartHour + 10 == theIdEndHour)) {
+                    var theIndex = 0;
+                    var theDiv
+                    try {
+                        if (endMinute == 0 && theIdStartHour + 10 == theIdEndHour) {
+                            endMinute = 60;
+                        }
+                        var firstDiv = document.getElementById(theIdStartHour).getElementsByClassName(startMinute).item(0)
+                        var height = minuteHeight
+                        for (var i = startMinute + 1; i < endMinute; i++) {
+                            var appendedDiv = document.getElementById(theIdStartHour).getElementsByClassName(i).item(0)
+                            // firstDiv.appendChild(appendedDiv);
+                            // console.log("start")
+                            // console.log(theIdStartHour);
+                            // console.log(i);
+                            // console.log(document.getElementById(theIdStartHour).getElementsByClassName(i).item(0));
+                            height += minuteHeight
+                            theIndex = i
+                            theDiv = appendedDiv;
+                            appendedDiv.remove();
+                            // console.log(document.getElementById(theIdStartHour).getElementsByClassName(i))
+                        }
+                        // console.log("firstDiv.style.height");
+                        firstDiv.style.height = height + "px"
+                        // console.log(firstDiv.offsetHeight)
+                        // console.log(firstDiv);
+                        firstDiv.style.backgroundColor = color;
+                        firstDiv.innerHTML = "<div style='font-size: 12px; font-weight: 500; color: white; text-align: left; width: 90%; margin-left: 5%;'><div>" + TaskName + "</div><div>" + startHour + ":" + startMinute + " - " + endHour + ":" + (endMinute == 60 ? "00" : endMinute) + "</div></div>"
+                    } catch {
+                        console.log('startNormal')
+                        console.log(theIndex)
+                        console.log(theIdStartHour)
+                        console.log(Day)
+                        console.log(startHour)
+                        console.log(endHour)
+                        console.log(theDiv)
+                    }
+                } else {
+                    var theIndex = 0;
+                    try {
+                        var height = minuteHeight
+                        var firstDiv = document.getElementById(theIdStartHour).getElementsByClassName(startMinute).item(0)
+                        for (var i = startMinute + 1; i < 60; i++) {
+                            var appendedDiv = document.getElementById(theIdStartHour).getElementsByClassName(i).item(0)
+                            // console.log(document.getElementById(theIdStartHour).getElementsByClassName(i))
+                            document.getElementById(theIdStartHour).getElementsByClassName(i).item(0).style.backgroundColor = color;
+                            height += minuteHeight
+                            appendedDiv.remove();
+                            // if (theIdStartHour == 36) {
+                            //     console.log(i);
+                            // }
+                            theIndex = i
+                        }
+                        firstDiv.style.height = height + "px"
+                        firstDiv.style.backgroundColor = color;
+                        firstDiv.innerHTML = "<div style='font-size: 12px; font-weight: 500; color: white; text-align: left; width: 90%; margin-left: 5%;'><div>" + TaskName + "</div><div>" + startHour + ":" + startMinute + " - " + endHour + ":" + endMinute + "</div></div>"
+                        for (var i = 0; i < endMinute; i++) {
+                            // console.log(document.getElementById(theIdStartHour).getElementsByClassName(i))
+                            document.getElementById(theIdEndHour).getElementsByClassName(i).item(0).style.backgroundColor = color;
+                        }
+
+                        if (theIdStartHour + 10 < theIdEndHour) {
+                            for (var i = theIdStartHour + 10; i < theIdEndHour; i += 10) {
+                                // console.log("i: " + i);
+                                const collection = document.getElementById(i).getElementsByClassName('minute');
+                                for (let i = 0; i < collection.length; i++) {
+                                    collection[i].style.backgroundColor = color;
+                                }
+                                // document.getElementById(i).querySelector('.minute').style.backgroundColor = color;
+                            }
+                        }
+                    } catch {
+                        console.log('start')
+                        console.log(theIndex)
+                        console.log(theIdStartHour)
+                        console.log(Day)
+                        console.log(startHour)
+                        console.log(endHour)
+                        console.log(theDiv)
+                    }
+                }
+            }
+        </script>
         @foreach (UserTaskReadUpdateDTO x in @ViewBag.AllTask)
         {
             <script type="text/javascript">
-                @* console.log(@x.StartTime.Hour + " " + @x.EndTime.Minute + " " + @x.EndTime.Hour + " " + @x.EndTime.Minute + " " + @((int)x.TaskDay.DayOfWeek)) *@
-                RenderTask(@x.StartTime.Hour, @x.EndTime.Minute, @x.EndTime.Hour, @x.EndTime.Minute, @(((int)x.TaskDay.DayOfWeek == 0) ? 6 : (int)x.TaskDay.DayOfWeek - 1));
+                console.log(firstDayOfListDay)
+                console.log(lastDayOfListDay)
+                console.log('@x.TaskDay')
+                console.log(Date.parse('@x.TaskDay') <= Date.parse(lastDayOfListDay))
+                console.log(Date.parse('@x.TaskDay') >= Date.parse(firstDayOfListDay))
+                if (Date.parse('@x.TaskDay') <= Date.parse(lastDayOfListDay) && Date.parse('@x.TaskDay') >= Date.parse(firstDayOfListDay)) {
+                    listTask.push({ StartTime: '@x.StartTime', endTime: '@x.EndTime', taskDate: '@x.TaskDay', TaskName: '@x.Name', TaskDescription: '@x.Description', TaskStatus: '@x.Status', TaskId: '@x.Id' })
+                    console.log(listTask)
+                    console.log({ StartTime: '@x.StartTime', endTime: '@x.EndTime', taskDate: '@x.TaskDay' })
+                    @* console.log(@x.StartTime.Hour + " " + @x.EndTime.Minute + " " + @x.EndTime.Hour + " " + @x.EndTime.Minute + " " + @((int)x.TaskDay.DayOfWeek)) *@
+                    RenderTask(@x.StartTime.Hour, @x.EndTime.Minute, @x.EndTime.Hour, @x.EndTime.Minute, @(((int)x.TaskDay.DayOfWeek == 0) ? 6 : (int)x.TaskDay.DayOfWeek - 1), "@x.Name", "@x.Description", @x.Status);
+                }
             </script>
         }
     }

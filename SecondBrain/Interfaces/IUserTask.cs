@@ -7,8 +7,8 @@ namespace SecondBrain.Interfaces
     public interface IUserTask
     {
         public Task<GeneralResponse> AddTask(UserTaskCreateDTO Model);
-        public Task<GeneralResponse> UpdateTask(UserTaskReadUpdateDTO Model);
-        public Task<GeneralResponse> DeleteTask(Guid TaskId);
+        public Task<GeneralResponse> UpdateTask(UserTaskCreateDTO Model);
+        public Task<GeneralResponse> DeleteTask(int TaskId);
         public Task<List<UserTaskReadUpdateDTO>> GetAllTaskByUserId(Guid UserId);
     }
 }

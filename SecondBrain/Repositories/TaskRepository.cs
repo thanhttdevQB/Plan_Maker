@@ -43,35 +43,32 @@ namespace SecondBrain.Repositories
             }
         }
 
-        public async Task<ServiceResponses.GeneralResponse> UpdateTask(UserTaskReadUpdateDTO UpdateUserTask)
+        public async Task<ServiceResponses.GeneralResponse> UpdateTask(UserTaskCreateDTO UpdateUserTask)
         {
             try
             {
-                
-                UserTask newUserTask = new UserTask
-                {
-                    Description = UpdateUserTask.Description,
-                    EndTime = UpdateUserTask.EndTime,
-                    StartTime = UpdateUserTask.StartTime,
-                    Status = UpdateUserTask.Status,
-                    TaskDay = UpdateUserTask.TaskDay,
-                    Name = UpdateUserTask.Name,
-                };
+                UserTask newUserTask = _context.UserTask.Include(x => x.UserProfile).Where(x => x.TaskDay == UpdateUserTask.TaskDay && x.UserProfile.Id == UpdateUserTask.UserId && x.StartTime == UpdateUserTask.StartTime).FirstOrDefault();
+                newUserTask.Description = UpdateUserTask.Description;
+                newUserTask.EndTime = UpdateUserTask.EndTime;
+                newUserTask.StartTime = UpdateUserTask.StartTime;
+                newUserTask.Status = UpdateUserTask.Status;
+                newUserTask.TaskDay = UpdateUserTask.TaskDay;
+                newUserTask.Name = UpdateUserTask.Name;
                 _context.UserTask.Update(newUserTask);
                 _context.SaveChanges();
                 return new ServiceResponses.GeneralResponse(true, "Task updated");
             }
             catch (Exception ex)
             {
-                return new ServiceResponses.GeneralResponse(false, ex.Message);
+                return await AddTask(UpdateUserTask);
             }
         }
 
-        public async Task<ServiceResponses.GeneralResponse> DeleteTask(Guid TaskId)
+        public async Task<ServiceResponses.GeneralResponse> DeleteTask(int TaskId)
         {
             try
             {
-                UserTask target = await _context.UserTask.FindAsync(TaskId);
+                UserTask target = _context.UserTask.Find(TaskId);
                 _context.UserTask.Remove(target);
                 _context.SaveChanges();
                 return new ServiceResponses.GeneralResponse(true, "Task updated");

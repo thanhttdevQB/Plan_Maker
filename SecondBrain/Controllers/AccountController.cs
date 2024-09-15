@@ -7,8 +7,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SecondBrain.Controllers
 {
-    public class AccountController(SignInManager<AppUser> signInManager, UserManager<AppUser> userManager, SecondBrainDataContext _context) : Controller
+    public class AccountController : Controller
     {
+        private readonly SignInManager<AppUser> _signInManager;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly SecondBrainDataContext _context;
+
+        public AccountController(SignInManager<AppUser> signInManager, UserManager<AppUser> userManager, SecondBrainDataContext context)
+        {
+            _signInManager = signInManager;
+            _userManager = userManager;
+            _context = context;
+        }
+      
         public IActionResult Index()
         {
             return View();
@@ -26,10 +37,10 @@ namespace SecondBrain.Controllers
                         UserName = model.Email,
                         Name = model.Name
                     };
-                    var result = await userManager.CreateAsync(newUser, model.Password);
+                    var result = await _userManager.CreateAsync(newUser, model.Password);
                     if (result.Succeeded)
                     {
-                        await signInManager.SignInAsync(newUser, false);
+                        await _signInManager.SignInAsync(newUser, false);
                         await _context.UserProfile.AddAsync(new UserProfile
                         {
                             IsSuspend = false,
@@ -55,7 +66,7 @@ namespace SecondBrain.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
                 if (result.Succeeded)
                 {
                     UserProfile User = _context.UserProfile.Include(x => x.UserAccount).Where(x => x.UserAccount.Email == model.Email).FirstOrDefault();
@@ -75,7 +86,7 @@ namespace SecondBrain.Controllers
 
         public async Task<IActionResult> Logout(SignIn model)
         {
-            var result = signInManager.SignOutAsync();
+            var result = _signInManager.SignOutAsync();
             return Redirect("/");
         }
     }
