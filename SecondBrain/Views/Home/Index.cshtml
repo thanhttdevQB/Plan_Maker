@@ -146,6 +146,15 @@
         var minuteHeight = hourHeight / 60;
         var listTask = []
 
+        // Check if 'localStorageCleared' key exists
+        if (!sessionStorage.getItem('localStorageCleared')) {
+            // Clear all localStorage
+            localStorage.clear();
+
+            // Set the 'localStorageCleared' flag in sessionStorage
+            sessionStorage.setItem('localStorageCleared', 'true');
+        }
+
         var current
         if (localStorage.getItem('Date') == null) {
             current = new Date()

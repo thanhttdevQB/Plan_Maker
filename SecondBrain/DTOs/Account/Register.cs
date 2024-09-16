@@ -1,10 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SecondBrain.DTOs
+namespace SecondBrain.DTOs.Account
 {
-    public class SignIn
+    public class Register
     {
         [Required]
+        [StringLength(50)]
+        public string? Name { get; set; }
+        [Required]
+        [StringLength(50)]
         [DataType(DataType.EmailAddress)]
         public string? Email { get; set; }
         [Required]
@@ -12,7 +16,7 @@ namespace SecondBrain.DTOs
         [DataType(DataType.Password)]
         public string? Password { get; set; }
         [Required]
-        [Display(Name = "Remember me")]
-        public bool RememberMe { get; set; }
+        [Compare("Password", ErrorMessage = "Password not match")]
+        public string? ConfirmPassword { get; set; }
     }
 }

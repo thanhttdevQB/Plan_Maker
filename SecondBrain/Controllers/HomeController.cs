@@ -12,17 +12,13 @@ namespace SecondBrain.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly SignInManager<AppUser> _SignInManager;
         public readonly IUserTask _IUserTask; 
-        private readonly UserManager<AppUser> _userManager;
-        private readonly SecondBrainDataContext _context;
+        public readonly IAccount _IAccount;
 
-        public HomeController(IUserTask IUserTask, SignInManager<AppUser> SignInManager, SecondBrainDataContext context, UserManager<AppUser> userManager)
+        public HomeController(IUserTask IUserTask, IAccount IAccount)
         {
-            _SignInManager = SignInManager;
             _IUserTask = IUserTask;
-            _context = context;
-            _userManager = userManager;
+            _IAccount = IAccount;
         }
 
         public IActionResult CheckAndReturnLogin()
@@ -61,7 +57,7 @@ namespace SecondBrain.Controllers
                 return View();
             } catch
             {
-                AccountController newAccountController = new AccountController(_SignInManager, _userManager, _context);
+                AccountController newAccountController = new AccountController(_IAccount);
                 return newAccountController.View();
             }
         }
@@ -73,7 +69,7 @@ namespace SecondBrain.Controllers
             string UserId = Request.Cookies.Where(x => x.Key == "UserId").FirstOrDefault().Value;
             NewUserTask.UserId = Guid.Parse(UserId);
 
-            var result = await _IUserTask.UpdateTask(NewUserTask);
+            await _IUserTask.UpdateTask(NewUserTask);
 
             return RedirectToAction("Index");
         }
@@ -82,7 +78,7 @@ namespace SecondBrain.Controllers
         {
             CheckAndReturnLogin();
 
-            var result = _IUserTask.DeleteTask(NewUserTask.Status);
+            await _IUserTask.DeleteTask(NewUserTask.Status);
 
             return RedirectToAction("Index");
         }

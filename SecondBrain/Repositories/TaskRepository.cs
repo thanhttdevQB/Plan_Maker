@@ -1,6 +1,5 @@
 ﻿using SecondBrain.Interfaces;
 using SecondBrain.Data;
-using SecondBrain.Responses;
 using SecondBrain.Models;
 using SecondBrain.DTOs.Task;
 using Microsoft.EntityFrameworkCore;
@@ -15,12 +14,12 @@ namespace SecondBrain.Repositories
     {
         private readonly SecondBrainDataContext _context;
 
-        public TaskRepository( SecondBrainDataContext context )
+        public TaskRepository(SecondBrainDataContext context)
         {
             _context = context;
         }
 
-        public async Task<ServiceResponses.GeneralResponse> AddTask(UserTaskCreateDTO TaskCreateDTO)
+        public async Task AddTask(UserTaskCreateDTO TaskCreateDTO)
         {
             try
             {
@@ -35,15 +34,14 @@ namespace SecondBrain.Repositories
                     UserProfile = _context.UserProfile.Find(TaskCreateDTO.UserId),
                 });
                 _context.SaveChanges();
-                return new ServiceResponses.GeneralResponse(true, "Task added");
             }
             catch (Exception ex)
             {
-                return new ServiceResponses.GeneralResponse(false, ex.Message);
+                Console.WriteLine(ex.ToString());
             }
         }
 
-        public async Task<ServiceResponses.GeneralResponse> UpdateTask(UserTaskCreateDTO UpdateUserTask)
+        public async Task UpdateTask(UserTaskCreateDTO UpdateUserTask)
         {
             try
             {
@@ -56,26 +54,24 @@ namespace SecondBrain.Repositories
                 newUserTask.Name = UpdateUserTask.Name;
                 _context.UserTask.Update(newUserTask);
                 _context.SaveChanges();
-                return new ServiceResponses.GeneralResponse(true, "Task updated");
             }
             catch (Exception ex)
             {
-                return await AddTask(UpdateUserTask);
+                await AddTask(UpdateUserTask);
             }
         }
 
-        public async Task<ServiceResponses.GeneralResponse> DeleteTask(int TaskId)
+        public async Task DeleteTask(int TaskId)
         {
             try
             {
                 UserTask target = _context.UserTask.Find(TaskId);
                 _context.UserTask.Remove(target);
                 _context.SaveChanges();
-                return new ServiceResponses.GeneralResponse(true, "Task updated");
             }
             catch (Exception ex)
             {
-                return new ServiceResponses.GeneralResponse(false, ex.Message);
+                Console.WriteLine(ex.ToString());
             }
         }
 
@@ -99,9 +95,11 @@ namespace SecondBrain.Repositories
                     });
                 }
                 return listTask;
-            } catch
+            }
+            catch (Exception ex)
             {
-                return new List<UserTaskReadUpdateDTO>();
+                Console.WriteLine(ex.ToString());
+                return null;
             }
         }
     }
