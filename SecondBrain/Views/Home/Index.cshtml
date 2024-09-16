@@ -146,7 +146,13 @@
         var minuteHeight = hourHeight / 60;
         var listTask = []
 
-        var current = new Date()
+        var current
+        if (localStorage.getItem('Date') == null) {
+            current = new Date()
+            localStorage.setItem('Date', current.toString())
+        } else {
+            current = new Date(localStorage.getItem('Date'))
+        }
         var week = new Array()
         // Starting Monday not Sunday
         var first = ((current.getDate() - current.getDay()) + 1)

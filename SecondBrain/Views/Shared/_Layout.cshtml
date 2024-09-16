@@ -1,22 +1,6 @@
 ﻿@{
     ViewData["typeDisplay"] = 0;
 }
-@{
-    DateOnly today;
-    string FullDate;
-    Console.WriteLine(TempData["CurrentDate"].ToString());
-    if (1 == 1)
-    {
-        today = DateOnly.FromDateTime(DateTime.Now);
-        string fullDay = today.Year.ToString() + "-" + (today.Month < 10 ? "0" + (today.Month).ToString() : (today.Month).ToString()) + "-" + (today.Day < 10 ? "0" + today.Day.ToString() : today.Day.ToString());
-        TempData["CurrentDate"] = fullDay;
-        TempData["FullDate"] = today.ToString();
-    } else
-    {
-        FullDate = TempData["FullDate"]?.ToString();
-        today = DateOnly.Parse(FullDate);
-    }
-}
 @using System.Globalization
 
 <!DOCTYPE html>
@@ -35,26 +19,24 @@
             <div class="container-fluid">
                 <div class="d-flex">
                     <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SecondBrain</a>
-                    <button style="background:none; border:none; padding:0; margin:0;" onclick="@{
-                            today = today.AddDays(-7);
-                            string thefullDay = today.Year.ToString() + "-" + (today.Month < 10 ? "0" + (today.Month).ToString() : (today.Month).ToString()) + "-" + (today.Day < 10 ? "0" + today.Day.ToString() : today.Day.ToString());
-                            TempData["CurrentDate"] = thefullDay.ToString();
-                            TempData["FullDate "] = today.ToString();
-                        } window.location.reload(); console.log(1);">
+                    <button style="background:none; border:none; padding:0; margin:0;" onclick="
+                            var newDate = new Date(localStorage.getItem('Date'));
+                            newDate.setDate(newDate.getDate() - 7);
+                            localStorage.setItem('Date', newDate.toString());
+                            window.location.reload();">
                         <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 100 100">
                             <polygon points="60,10 20,50 60,90" fill="black" />
                         </svg>
                     </button>
-                    <div class="d-flex align-items-center">
-                        @{
-                            DateTime date = DateTime.ParseExact(TempData["CurrentDate"]?.ToString(), "yyyy-MM-dd", CultureInfo.InvariantCulture);
-                            string fullTime = date.ToString("dd, MMMM, yyyy", CultureInfo.InvariantCulture);
-                        }
-                        @fullTime
+                    <div class="d-flex align-items-center" id="theParsedDate">
                     </div>
                 </div>
             </div>
-            <button style="background:none; border:none; padding:0; margin:0;">
+            <button style="background:none; border:none; padding:0; margin:0;" onclick="
+                            var newDate = new Date(localStorage.getItem('Date'));
+                            newDate.setDate(newDate.getDate() + 7);
+                            localStorage.setItem('Date', newDate.toString());
+                            window.location.reload();">
                 <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 100 100">
                     <polygon points="40,10 80,50 40,90" fill="black" />
                 </svg>
@@ -175,6 +157,16 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        const monthNames = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+
+        var theParseDay = new Date(localStorage.getItem('Date'))
+        document.getElementById('theParsedDate').innerHTML = monthNames[theParseDay.getMonth()] + ", " + theParseDay.getFullYear()
+    </script>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
