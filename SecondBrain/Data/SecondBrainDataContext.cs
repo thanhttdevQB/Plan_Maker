@@ -9,7 +9,7 @@ namespace SecondBrain.Data
         public SecondBrainDataContext(DbContextOptions options) : base(options)
         {
         }
-        //ádfasdf
+        //ádfasdf tét
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
